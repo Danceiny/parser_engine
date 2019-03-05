@@ -1,4 +1,4 @@
-from scrapy.selector import Selector
+from scrapy.selector import Selector, SelectorList
 import json
 import six
 from scrapy.http import HtmlResponse, TextResponse
@@ -102,7 +102,7 @@ class PEParser(object):
                 if field.regexp:
                     v = selector_list.re(field.regexp)
                 else:
-                    v = selector_list.get()
+                    v = selector_list.extract()
                 self.log("selector_list.get() return type", type(v), v)
                 if isinstance(v, Selector):
                     item[field.key] = v.get()

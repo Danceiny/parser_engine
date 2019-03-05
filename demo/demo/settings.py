@@ -14,26 +14,25 @@ BOT_NAME = 'demo'
 SPIDER_MODULES = ['demo.spiders']
 NEWSPIDER_MODULE = 'demo.spiders'
 
-SCHEDULER = "scrapy_redis.scheduler.Scheduler"
-DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+# SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+# DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+# SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.SpiderPriorityQueue'
 
-REDIS_HOST = '192.168.1.40'
-REDIS_PORT = 6379
+# REDIS_HOST = '127.0.0.1'
+# REDIS_PORT = 6379
 
-MYSQL_HOST = 'docker.for.mac.host.internal'
+MYSQL_HOST = '127.0.0.1'
 MYSQL_USER = 'root'
 MYSQL_PASSWORD = ''
 MYSQL_DATABASE = 'test'
 
 SCHEDULER_PERSIS = True
 
-SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.SpiderPriorityQueue'
-
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'demo (+http://www.yourdomain.com)'
-
+USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:7.0.1) Gecko/20100101 Firefox/7.7'
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
@@ -41,13 +40,13 @@ ROBOTSTXT_OBEY = True
 # Configure a delay for requests for the same website (default: 0)
 # See https://doc.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-# DOWNLOAD_DELAY = 3
+DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
-# CONCURRENT_REQUESTS_PER_DOMAIN = 16
+CONCURRENT_REQUESTS_PER_DOMAIN = 5
 # CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-# COOKIES_ENABLED = False
+COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 # TELNETCONSOLE_ENABLED = False
@@ -79,14 +78,13 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    # 'demo.pipelines.ProcessorPipeline': 300,
-    'scrapy_redis.pipelines.RedisPipeline': 300,
-    'demo.pipelines.DuplicatesPipeline': 300,
+    # 'scrapy_redis.pipelines.RedisPipeline': 300,
+    # 'demo.pipelines.DuplicatesPipeline': 300,
     # 'demo.pipelines.MongoDBPipeline': 350,
     'demo.pipelines.MySQLPipeline': 350,
 }
-MONGO_URI = 'mongodb://localhost:27017'
-MONGO_DATABASE = 'test'
+# MONGO_URI = 'mongodb://localhost:27017'
+# MONGO_DATABASE = 'test'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html

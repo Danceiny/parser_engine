@@ -16,7 +16,6 @@
           "position": null,
           "key": "steps",
           "value_type": null,
-          "regexp": "^[0-9]-([^0-9.]+)",
           "attr_name": "id"
         }
       ]

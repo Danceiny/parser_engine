@@ -86,6 +86,7 @@ class Template(object):
         """
 
         def _deco(spcls):
+            kw['business'] = spcls.name
             cls.src = kw.pop('src', None)
             start_url_generator_name = kw.pop('start_urls_generator', None)
             if start_url_generator_name:

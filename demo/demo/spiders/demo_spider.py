@@ -62,9 +62,3 @@ class DemoSpider4(CrawlSpider):
     start_urls = [
         "http://github.cannot.cc/baixing-helper"
     ]
-
-    def process_results(self, response, results):
-        # {'步骤': ['准备工作', '找到电脑的ip地址和端口', '确保手机与电脑建立连接', '抖音搜索关键词', '抓包数据导出', '提取用户信息']}
-        print("处理结果", results)
-
-        return results

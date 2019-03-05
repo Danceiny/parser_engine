@@ -7,7 +7,7 @@
 
 import pymongo
 import logging
-from demo.items import LeadsItem, Leads
+from .items import LeadsItem, Leads, DemoItem
 
 
 class DuplicatesPipeline(object):
@@ -17,7 +17,7 @@ class DuplicatesPipeline(object):
 
     def process_item(self, item, spider):
         channel_id = item['channel_id']
-        name = item['name']
+        name = item.get('name')
         if channel_id in self.leads_id_set:
             pass
         if name in self.leads_name_set:
@@ -72,3 +72,5 @@ class MySQLPipeline(object):
                 extra=item.get('extra', ''))
             leads.save()
             return item
+        elif isinstance(item, DemoItem):
+            print("pipeline get DemoItem", item)
