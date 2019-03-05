@@ -8,7 +8,6 @@ from .spider import PECrawlSpider
 
 
 class Template(object):
-    # db/file object with get_template api
     # should implements
     # def find_by_id(tpl_id):
     #     return dict()
@@ -45,7 +44,7 @@ class Template(object):
         """
         will assign a method, which named `_parse`, to the decorated cls,
         and you can use it like this:
-            @singleton
+            @Singleton
             class DataSourse:
                 def find_by_id(tpl_id):
                     return {} # do query
@@ -123,6 +122,3 @@ class Template(object):
 
     def __call__(self, *args, **kwargs):
         return self.PageTemplate(*args, **kwargs)
-
-
-TemplateAnnotation = Template()

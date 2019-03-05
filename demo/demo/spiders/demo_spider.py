@@ -1,6 +1,6 @@
 from parser_engine.spider import PECrawlSpider, PERule
 from parser_engine.template import PETemplate, PEField
-from parser_engine.decorator import TemplateAnnotation, Template
+from parser_engine import TemplateAnnotation, Template
 from scrapy.spiders import CrawlSpider
 
 

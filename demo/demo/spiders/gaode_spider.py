@@ -2,7 +2,7 @@
 
 from scrapy.spiders import CrawlSpider
 
-from parser_engine.decorator import TemplateAnnotation
+from parser_engine import TemplateAnnotation
 
 
 @TemplateAnnotation(start_url_tpl_id="gaode-place-api", channel="gaode_map", start_urls_generator="generate_urls")
