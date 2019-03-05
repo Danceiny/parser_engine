@@ -49,6 +49,7 @@ def load_config_data():
         if not os.path.isabs(config_path):
             config_path1 = closest_parser_engine_json(config_path)
             if not config_path1:
+                print("try to find default config", __file__)
                 config_path1 = closest_parser_engine_json(config_path, os.path.dirname(__file__))
                 if not config_path1:
                     raise FileNotFoundError
