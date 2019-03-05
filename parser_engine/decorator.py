@@ -1,6 +1,4 @@
-import json
-import os
-from scrapy.spiders import Spider, Rule, CrawlSpider
+from scrapy.spiders import Rule, CrawlSpider
 from scrapy_redis.spiders import RedisSpider
 from scrapy.linkextractors import LinkExtractor
 from .template import PETemplate

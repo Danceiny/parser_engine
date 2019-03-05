@@ -3,6 +3,7 @@ import six
 import os
 import json
 from scrapy.utils import project
+import pkg_resources
 
 
 def is_sequence(seq):
@@ -49,10 +50,9 @@ def load_config_data():
         if not os.path.isabs(config_path):
             config_path1 = closest_parser_engine_json(config_path)
             if not config_path1:
-                default_config_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
-                config_path1 = closest_parser_engine_json(config_path, default_config_dir)
-                if not config_path1:
-                    raise FileNotFoundError
+                resource_package = __name__
+                resource_path = '/'.join(('templates', config_path))
+                return json.load(pkg_resources.resource_stream(resource_package, resource_path))
             config_path = config_path1
         with open(config_path, mode='rb') as f:
             return json.loads(f.read())

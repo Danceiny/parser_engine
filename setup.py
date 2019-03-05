@@ -11,7 +11,7 @@ setup(
     long_description=open("README.md").read(),
     license="MIT",
     url="https://gitlab.baixing.cn/spider/parser_engine",
-    packages=['parser_engine', 'templates'],
+    packages=find_packages(),
     install_requires=[
         "six",
         "jsonpath-rw",
