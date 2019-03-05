@@ -1,6 +1,7 @@
 import collections
 import six
 import os
+import json
 
 
 def is_sequence(seq):
@@ -29,3 +30,26 @@ def closest_parser_engine_json(fn='parser_engine.json', path='.', prevpath=None)
     if os.path.exists(cfgfile):
         return cfgfile
     return closest_parser_engine_json(os.path.dirname(path), path)
+
+
+def load_scrapy_settings():
+    # FIXME: get scrapy project settings from outside
+    from scrapy.settings import Settings
+    settings = Settings()
+    settings_module_path = os.environ.get('SCRAPY_ENV')
+    settings.setmodule(settings_module_path, priority='project')
+    return settings
+
+
+def load_config_data():
+    settings = load_scrapy_settings()
+    db_table = settings.get('PARSER_ENGINE_CONFIG_TABLE')
+    if db_table:
+        # todo
+        pass
+    else:
+        config_path = settings.get("PARSER_ENGINE_CONFIG_FILE", 'parser_engine.json')
+        if not os.path.isabs(config_path):
+            config_path = closest_parser_engine_json(config_path)
+        with open(config_path) as f:
+            return json.loads(f.read())

@@ -5,26 +5,8 @@ from scrapy_redis.spiders import RedisSpider
 from scrapy.linkextractors import LinkExtractor
 from .template import PETemplate
 from .parser import parse_with_tpl
-from .utils import is_sequence, closest_parser_engine_json
+from .utils import is_sequence, load_config_data
 from .spider import PECrawlSpider
-
-
-def load_config_data():
-    from scrapy.settings import Settings
-    settings = Settings()
-    settings_module_path = os.environ.get('SCRAPY_ENV')
-    print("parser_engine settings module path", settings_module_path)
-    settings.setmodule(settings_module_path, priority='project')
-    db_table = settings.get('PARSER_ENGINE_CONFIG_TABLE')
-    if db_table:
-        # todo
-        pass
-    else:
-        config_path = settings.get("PARSER_ENGINE_CONFIG_FILE", 'parser_engine.json')
-        if not os.path.isabs(config_path):
-            config_path = closest_parser_engine_json(config_path)
-        with open(config_path) as f:
-            return json.loads(f.read())
 
 
 class Template(object):

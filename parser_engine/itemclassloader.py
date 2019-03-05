@@ -6,8 +6,8 @@ from scrapy.utils.misc import walk_modules
 from scrapy import Item
 import inspect
 from collections import defaultdict
-from scrapy.utils import project
 from .singleton import Singleton
+from .utils import load_scrapy_settings
 
 
 def iter_item_classes(module):
@@ -16,7 +16,6 @@ def iter_item_classes(module):
     """
     # this needs to be imported here until get rid of the spider manager
     # singleton in scrapy.spider.spiders
-    from scrapy.spiders import Spider
     for obj in six.itervalues(vars(module)):
         if inspect.isclass(obj) and \
                 issubclass(obj, Item) and \
@@ -35,7 +34,7 @@ class ItemClassLoader(object):
     """
 
     def __init__(self):
-        self.settings = project.get_project_settings()
+        self.settings = load_scrapy_settings()
         self.__init(self.settings)
         self._load_all_items()
 
