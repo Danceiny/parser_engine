@@ -2,6 +2,9 @@ import collections
 import six
 import os
 import json
+from scrapy.utils import project
+
+from scrapy.settings import Settings
 
 
 def is_sequence(seq):
@@ -34,11 +37,7 @@ def closest_parser_engine_json(fn='parser_engine.json', path='.', prevpath=None)
 
 def load_scrapy_settings():
     # FIXME: get scrapy project settings from outside
-    from scrapy.settings import Settings
-    settings = Settings()
-    settings_module_path = os.environ.get('SCRAPY_ENV')
-    settings.setmodule(settings_module_path, priority='project')
-    return settings
+    return project.get_project_settings()
 
 
 def load_config_data():
