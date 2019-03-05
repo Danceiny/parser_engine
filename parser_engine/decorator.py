@@ -70,7 +70,6 @@ class Template(object):
                 rules = cls.get_rules(suti, **kw)
                 if len(rules) >= 1:
                     spcls.start_rule = rules[0]
-                    print("cb_kwargs", rules[0].cb_kwargs)
 
                     def _parse(self, response):
                         return rules[0].callback(response, **rules[0].cb_kwargs)

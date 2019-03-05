@@ -64,7 +64,6 @@ class ItemClassLoader(object):
                     warnings.warn(msg, RuntimeWarning)
                 else:
                     raise
-        print("load all", default_items_module, self.list())
 
     def list(self):
         """
