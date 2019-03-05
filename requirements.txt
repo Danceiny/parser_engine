@@ -1,0 +1,2 @@
+jsonpath-rw # jsonpath-ng
+scrapy
