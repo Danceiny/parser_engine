@@ -1,10 +1,11 @@
 import setuptools
+import parser_engine
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
     name='parser_engine',
-    version='0.0.1',
+    version=parser_engine.__version__,
     scripts=[],
     author="Danceiny",
     author_email="danceiny@gmail.com",
@@ -12,10 +13,11 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Danceiny/parser_engine",
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(exclude=["*.tests"]),
     install_requires=[
         'jsonpath-rw',
-        'scrapy'
+        'scrapy',
+        'six'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
