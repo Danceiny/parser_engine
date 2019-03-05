@@ -8,7 +8,7 @@ import inspect
 from collections import defaultdict
 from .singleton import Singleton
 from .utils import load_scrapy_settings
-
+from scrapy.utils import project
 
 def iter_item_classes(module):
     """Return an iterator over all spider classes defined in the given module
@@ -34,7 +34,8 @@ class ItemClassLoader(object):
     """
 
     def __init__(self):
-        self.settings = load_scrapy_settings()
+        # self.settings = load_scrapy_settings()
+        self.settings = project.get_project_settings()
         self.__init(self.settings)
         self._load_all_items()
 
