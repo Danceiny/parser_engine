@@ -13,7 +13,7 @@ BOT_NAME = 'demo'
 
 SPIDER_MODULES = ['demo.spiders']
 NEWSPIDER_MODULE = 'demo.spiders'
-
+PARSER_ENGINE_CONFIG_FILE = "parser_engine2.json"
 # SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 # DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 # SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.SpiderPriorityQueue'

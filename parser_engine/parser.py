@@ -9,7 +9,6 @@ from .template import PETemplate
 import time
 
 
-# todo: https://docs.scrapy.org/en/latest/topics/loaders.html
 def parse_with_tpl(response, tpl, **context):
     """
 
@@ -31,6 +30,7 @@ class PEParser(object):
 
     def __call__(self, response, **context):
         """
+        todo: 使用ItemLoader优化 https://docs.scrapy.org/en/latest/topics/loaders.html
         :param response: instance of scrapy.http.Response
         :return: instance of scrapy.Item's subclass
         """

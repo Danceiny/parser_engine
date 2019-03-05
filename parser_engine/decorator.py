@@ -3,8 +3,31 @@ from scrapy_redis.spiders import RedisSpider
 from scrapy.linkextractors import LinkExtractor
 from .template import PETemplate
 from .parser import parse_with_tpl
-from .utils import is_sequence, load_config_data
+from .utils import is_sequence, load_config_data, classproperty
 from .spider import PECrawlSpider
+
+
+def parse_with_tpl_id(response, tpl_id, **context):
+    """
+    todo: this method called `inside` scrapy, which means settings of scrapy should be accessible
+    :param response:
+    :param tpl_id:
+    :param context:
+    :return:
+    """
+    return parse_with_tpl(response, PETemplate.from_json(find_by_id(tpl_id)), **context)
+
+
+def find_by_id(tpl_id):
+    """
+    todo: improve query performance
+    :param tpl_id:
+    :return:
+    """
+    for tpl in Template.config_data['templates']:
+        if tpl.get('name') == tpl_id:
+            return tpl
+    return tpl_id
 
 
 class Template(object):
@@ -13,7 +36,13 @@ class Template(object):
     #     return dict()
     src = None
 
-    config_data = None
+    _config_data = None
+
+    @classproperty
+    def config_data(cls):
+        if not cls._config_data:
+            cls._config_data = load_config_data()
+        return cls._config_data
 
     @classmethod
     def get_rules(cls, tpl_ids, **kwargs):
@@ -25,12 +54,14 @@ class Template(object):
             rules = [cls.get_rule(cls.src.find_by_id(tpl_id), **kwargs) for tpl_id in tpl_ids]
         else:
             rules = []
-            if not cls.config_data:
-                cls.config_data = load_config_data()
-            for tpl in cls.config_data['templates']:
-                if tpl.get('name') in tpl_ids:
-                    rules.append(cls.get_rule(tpl, **kwargs))
+            for tpl_id in tpl_ids:
+                rules.append(cls.get_rule_v2(tpl_id, **kwargs))
         return rules
+
+    @classmethod
+    def get_rule_v2(cls, tpl_id, **kwargs):
+        kwargs['tpl_id'] = tpl_id
+        return Rule(LinkExtractor(), callback=parse_with_tpl_id, cb_kwargs=kwargs)
 
     @classmethod
     def get_rule(cls, tpl, **kwargs):
@@ -99,7 +130,6 @@ class Template(object):
                     def _parse(self, response):
                         return rules[0].callback(response, **rules[0].cb_kwargs)
 
-                    spcls.tpl = rules[0].cb_kwargs['tpl']
                     spcls._parse = _parse
             if issubclass(spcls, CrawlSpider) or issubclass(spcls, PECrawlSpider) or issubclass(spcls, RedisSpider):
                 spcls.rules = cls.get_rules(tpl_ids, **kw)

@@ -6,6 +6,15 @@ from scrapy.utils import project
 import pkg_resources
 
 
+class classproperty(object):
+
+    def __init__(self, fget):
+        self.fget = fget
+
+    def __get__(self, owner_self, owner_cls):
+        return self.fget(owner_cls)
+
+
 def is_sequence(seq):
     """Returns a true if its input is a collections.Sequence (except strings).
     Args:
