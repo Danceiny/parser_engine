@@ -26,7 +26,7 @@ def load_config_data():
                 if not os.path.exists(config_path1):
                     config_path1 = os.path.join(os.path.dirname(project_root_dir), config_path)
                     if not os.path.exists(config_path1):
-                        raise FileNotFoundError
+                        raise RuntimeError("parser_engine config file " + config_path + " not found")
                     else:
                         config_path = config_path1
             with open(config_path) as f:
