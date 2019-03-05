@@ -1,36 +1,30 @@
-from .template import PETemplate
 import json
 import os
 from scrapy.spiders import Spider, Rule, CrawlSpider
+from scrapy_redis.spiders import RedisSpider
 from scrapy.linkextractors import LinkExtractor
+from .template import PETemplate
 from .parser import parse_with_tpl
-from .utils import is_sequence
+from .utils import is_sequence, closest_parser_engine_json
 from .spider import PECrawlSpider
-
-from scrapy.utils import project
-from scrapy.utils.conf import closest_scrapy_cfg
 
 
 def load_config_data():
-    settings = project.get_project_settings()
+    from scrapy.settings import Settings
+    settings = Settings()
+    settings_module_path = os.environ.get('SCRAPY_ENV')
+    print("parser_engine settings module path", settings_module_path)
+    settings.setmodule(settings_module_path, priority='project')
     db_table = settings.get('PARSER_ENGINE_CONFIG_TABLE')
     if db_table:
         # todo
         pass
     else:
-        config_path = settings.get("PARSER_ENGINE_CONFIG_FILE", "parser_engine.json")
-        if config_path:
-            if not os.path.isabs(config_path):
-                project_root_dir = os.path.dirname(closest_scrapy_cfg())
-                config_path1 = os.path.join(project_root_dir, config_path)
-                if not os.path.exists(config_path1):
-                    config_path1 = os.path.join(os.path.dirname(project_root_dir), config_path)
-                    if not os.path.exists(config_path1):
-                        raise RuntimeError("parser_engine config file " + config_path + " not found")
-                    else:
-                        config_path = config_path1
-            with open(config_path) as f:
-                return json.loads(f.read())
+        config_path = settings.get("PARSER_ENGINE_CONFIG_FILE", 'parser_engine.json')
+        if not os.path.isabs(config_path):
+            config_path = closest_parser_engine_json(config_path)
+        with open(config_path) as f:
+            return json.loads(f.read())
 
 
 class Template(object):
@@ -76,7 +70,7 @@ class Template(object):
 
                     spcls.tpl = rules[0].cb_kwargs['tpl']
                     spcls._parse = _parse
-            if issubclass(spcls, CrawlSpider) or issubclass(spcls, PECrawlSpider):
+            if issubclass(spcls, CrawlSpider) or issubclass(spcls, PECrawlSpider) or issubclass(spcls, RedisSpider):
                 spcls.rules = cls.get_rules(tpl_ids, **kw)
             else:
                 pass

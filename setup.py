@@ -17,6 +17,7 @@ setuptools.setup(
     install_requires=[
         'jsonpath-rw',
         'scrapy',
+        'scrapy_redis',
         'six'
     ],
     classifiers=[
