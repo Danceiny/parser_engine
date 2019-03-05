@@ -17,6 +17,7 @@ setup(
         "jsonpath-rw",
         "scrapy"
     ],
+    include_package_data=True,
     classifiers=[
         "Environment :: Web Environment",
         'Intended Audience :: Developers',

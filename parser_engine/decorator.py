@@ -8,7 +8,11 @@ from .spider import PECrawlSpider
 
 
 class Template(object):
-    src = None  # db/file object with get_template api
+    # db/file object with get_template api
+    # should implements
+    # def find_by_id(tpl_id):
+    #     return dict()
+    src = None
 
     config_data = None
 
@@ -18,12 +22,15 @@ class Template(object):
             return ()
         if not is_sequence(tpl_ids):
             tpl_ids = [tpl_ids]
-        rules = []
-        if not cls.config_data:
-            cls.config_data = load_config_data()
-        for tpl in cls.config_data['templates']:
-            if tpl.get('name') in tpl_ids:
-                rules.append(cls.get_rule(tpl, **kwargs))
+        if cls.src:
+            rules = [cls.get_rule(cls.src.find_by_id(tpl_id), **kwargs) for tpl_id in tpl_ids]
+        else:
+            rules = []
+            if not cls.config_data:
+                cls.config_data = load_config_data()
+            for tpl in cls.config_data['templates']:
+                if tpl.get('name') in tpl_ids:
+                    rules.append(cls.get_rule(tpl, **kwargs))
         return rules
 
     @classmethod
@@ -36,6 +43,7 @@ class Template(object):
     @classmethod
     def PageTemplate(cls, tpl_ids=None, **kw):
         def _deco(spcls):
+            cls.src = kw.pop('src', None)
             start_url_generator_name = kw.pop('start_urls_generator', None)
             if start_url_generator_name:
                 spcls.start_urls = spcls.__dict__[start_url_generator_name](spcls)
