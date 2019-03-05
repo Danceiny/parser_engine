@@ -4,8 +4,6 @@ import os
 import json
 from scrapy.utils import project
 
-from scrapy.settings import Settings
-
 
 def is_sequence(seq):
     """Returns a true if its input is a collections.Sequence (except strings).
@@ -32,7 +30,7 @@ def closest_parser_engine_json(fn='parser_engine.json', path='.', prevpath=None)
     cfgfile = os.path.join(path, fn)
     if os.path.exists(cfgfile):
         return cfgfile
-    return closest_parser_engine_json(os.path.dirname(path), path)
+    return closest_parser_engine_json(fn, os.path.dirname(path), path)
 
 
 def load_scrapy_settings():
@@ -49,6 +47,10 @@ def load_config_data():
     else:
         config_path = settings.get("PARSER_ENGINE_CONFIG_FILE", 'parser_engine.json')
         if not os.path.isabs(config_path):
-            config_path = closest_parser_engine_json(config_path)
+            config_path1 = closest_parser_engine_json(config_path)
+            if not config_path1:
+                raise FileNotFoundError(config_path)
+            else:
+                config_path = config_path1
         with open(config_path) as f:
             return json.loads(f.read())

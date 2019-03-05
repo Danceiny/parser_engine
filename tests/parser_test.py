@@ -1,4 +1,4 @@
-from parser import PEParser
+from parser_engine.parser import PEParser
 
 p = PEParser()
 v = p.cast(["daj"], 'singleton')
