@@ -42,6 +42,49 @@ class Template(object):
 
     @classmethod
     def PageTemplate(cls, tpl_ids=None, **kw):
+        """
+        will assign a method, which named `_parse`, to the decorated cls,
+        and you can use it like this:
+            @singleton
+            class DataSourse:
+                def find_by_id(tpl_id):
+                    return {} # do query
+
+            @TemplateAnnotation(src=DataSource(), start_url_tpl_id="tpl_id_0", channel="gaode",
+                                start_urls_generator="get_start_urls")
+            class SpiderA(CrawlSpider):
+                name = "spider_a"
+                def get_start_urls(self):
+                    return ["http://example.org"]
+
+                def parse(self, response):
+                    items = self._parse(response)
+                    if items:
+                        for item in items:
+                            yield item
+
+            # when you push your `parser_engine.json` on the same level of `scrapy.cfg`, which is strongly recommended,
+            # we and find the config file, and `src` not needed any more
+            @TemplateAnnotation(("tpl_id_0","tpl_id_1")
+            class SpiderB(CrawlSpider):
+                name = "spider_b"
+                start_urls = ["http://example.org"]
+
+                def process_results(self, response, results):
+                    for result in results:
+                        # result has been parsed by PE, should be an instance of scrapy.Item's subclass,
+                        # and you can do something else, like:
+                        result['channel'] = "gaode_map"
+                        result['extra'] = {}
+                    return results
+
+        :param tpl_ids: [string] or string
+        :param kw: assign k-v to `item`, except following keys
+            src => we use src to call `src.find_by_id('id')`
+            start_urls_generator => string, method name, we use this method to get start_urls and bind it to the `cls`
+            start_url_tpl_id => string, like tpl_id, but for scrapy.spiders.CrawlSpider `start_urls` contract
+        """
+
         def _deco(spcls):
             cls.src = kw.pop('src', None)
             start_url_generator_name = kw.pop('start_urls_generator', None)

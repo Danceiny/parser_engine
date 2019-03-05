@@ -1,0 +1,77 @@
+{
+  "templates": [
+    {
+      "name": "demo",
+      "itemname": "DemoItem",
+      "fields": [
+        {
+          "dom_id": null,
+          "_css": null,
+          "xpath": null,
+          "tags": [
+            "h3"
+          ],
+          "classes": [],
+          "attributes": null,
+          "position": null,
+          "key": "steps",
+          "value_type": null,
+          "regexp": "^[0-9]-([^0-9.]+)",
+          "attr_name": "id"
+        }
+      ]
+    },
+    {
+      "name": "dict-api-demo",
+      "fields": [
+        {
+          "key": "地名",
+          "json_path": "$.data.name",
+          "value_type": "singleton"
+        },
+        {
+          "key": "下级",
+          "json_path": "$.data.children[*].name"
+        }
+      ]
+    },
+    {
+      "name": "gaode-place-api",
+      "itemname": "LeadsItem",
+      "parent": {
+        "json_key": "pois"
+      },
+      "fields": [
+        {
+          "key": "contact",
+          "json_key": "tel",
+          "required": true
+        },
+        {
+          "key": "channel_id",
+          "json_key": "id"
+        },
+        {
+          "key": "name",
+          "json_key": "name"
+        },
+        {
+          "key": "contact_type",
+          "default_value": "mobile"
+        },
+        {
+          "key": "city",
+          "json_key": "cityname"
+        },
+        {
+          "key": "category",
+          "json_key": "type"
+        },
+        {
+          "key": "address",
+          "json_key": "address"
+        }
+      ]
+    }
+  ]
+}

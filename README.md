@@ -2,7 +2,8 @@
 ### TemplateAnnotation
 参数约定：
 - 业务名称name，即采用该注解的Spider类的name类变量
-- 渠道channel，请在注解中传参
+
+其他请参考[decorator.py](./parser_engine/decorator.py)中的注释。
 
 ### Html response
 举个简单的例子。
@@ -66,5 +67,7 @@
 `json_path`字段完全遵循[json_path协议](https://goessner.net/articles/JsonPath/)，[json_path在线调试](http://jsonpath.com/)。
 由于`json_path`解析总是返回一个list，对于一些确定的字段，比如通过调用API`http://172.31.1.4:30815/api/dict/area/0?childrenDepth=1`，想拿到该地区的name字段，则可以设置`value_type`为`singleton`，则PE会做一次转换。
 
-具体使用可以参考[demo_spider](../processor/spiders/demo_spider.py)。
+具体使用可以参考：
+- [demo_spider](./demo/demo/spiders/demo_spider.py)。
+- [gaode_spider](./demo/demo/spiders/gaode_spider.py)。
 

@@ -50,7 +50,11 @@ class PEParser(object):
         return self.transfer(items)
 
     def transfer(self, datas):
-        return [self.get_item_cls()(data) for data in datas]
+        item_cls = self.get_item_cls()
+        if item_cls:
+            return [item_cls(data) for data in datas]
+        else:
+            return datas
 
     @staticmethod
     def get_xpath_by_position(position):
