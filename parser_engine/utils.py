@@ -4,6 +4,7 @@ import os
 import json
 from scrapy.utils import project
 import pkg_resources
+from scrapy.http import HtmlResponse, TextResponse
 
 
 class classproperty(object):
@@ -65,3 +66,21 @@ def load_config_data():
             config_path = config_path1
         with open(config_path, mode='rb') as f:
             return json.loads(f.read())
+
+
+def is_html_response(response):
+    return isinstance(response, HtmlResponse) \
+           and b'text/plain' not in response.headers.get(b'Content-Type', b'') \
+           and not is_json(response.body)
+
+
+def is_json_response(response):
+    return is_json(response.body)
+
+
+def is_json(s):
+    try:
+        json.loads(s)
+        return True
+    except ValueError:
+        return False

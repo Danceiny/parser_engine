@@ -1,7 +1,6 @@
 from scrapy.selector import Selector, SelectorList
 import json
 import six
-from scrapy.http import HtmlResponse, TextResponse
 import jsonpath_rw as jsonpath
 from . import utils
 from .itemclassloader import ItemClassLoader
@@ -34,13 +33,12 @@ class PEParser(object):
         :param response: instance of scrapy.http.Response
         :return: instance of scrapy.Item's subclass
         """
-        items = None
-        if isinstance(response, HtmlResponse):
-            items = self.parse_html(response)
-        elif isinstance(response, TextResponse):
+        if utils.is_json_response(response):
             items = self.parse_text(response)
+        else:
+            items = self.parse_html(response)
         if not items:
-            return
+            return tuple()
         if not utils.is_sequence(items):
             items = (items,)
         for k, v in context.items():
@@ -152,8 +150,8 @@ class PEParser(object):
                     item[field.key] = self.cast([match.value for match in jsonpath.parse(field.json_path).find(data)],
                                                 field.value_type)
                 except Exception as e:
-                    pass
-            return item
+                    self.log(e)
+            return item,  # Attention: return iterable tuple
 
     @staticmethod
     def log(*msgs):
