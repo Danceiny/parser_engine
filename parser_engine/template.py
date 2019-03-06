@@ -13,12 +13,17 @@ class PETemplate(object):
 
     @classmethod
     def from_json(cls, s):
+        if not s:
+            raise ModuleNotFoundError
         s = copy.deepcopy(s)
         if not isinstance(s, dict):
-            s = json.loads(s)
-        fields = s.pop("fields")
+            try:
+                s = json.loads(s)
+            except json.decoder.JSONDecodeError as e:
+                raise e
+        fields = s.pop("fields", tuple())
         if fields:
-            fields = [PEField(field.pop('key'), **field) for field in fields]
+            fields = (PEField(field.pop('key'), **field) for field in fields if field.get('key'))
         return cls(s.pop('name'), fields, **s)
 
     def get(self, key):

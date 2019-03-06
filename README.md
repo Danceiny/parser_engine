@@ -1,4 +1,8 @@
 ## Parser Engine Driven by Template
+### Install
+- Fresh pre-release: 
+    >`pip install git+https://github.com/Danceiny/parser_engine`
+
 ### TemplateAnnotation
 参数约定：
 - 业务名称name，即采用该注解的Spider类的name类变量
