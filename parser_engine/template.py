@@ -3,6 +3,8 @@
 import json
 import copy
 
+from scrapy.linkextractors import LinkExtractor
+
 
 class PETemplate(object):
     def __init__(self, name, fields=None, **kwargs):
@@ -17,7 +19,8 @@ class PETemplate(object):
     @classmethod
     def from_json(cls, s):
         if not s:
-            raise RuntimeError("init " + cls.__name__ + " from empty json/dict")
+            raise RuntimeError(
+                "init " + cls.__name__ + " from empty json/dict error, maybe the template not found by id?")
         s = copy.deepcopy(s)
         if not isinstance(s, dict):
             try:
@@ -34,6 +37,14 @@ class PETemplate(object):
             return self.__getattribute__(key)
         except AttributeError:
             pass
+
+    def get_link_extractor(self):
+        return LinkExtractor(allow=self.get('allow'),
+                             deny=self.get('deny'),
+                             allow_domains=self.get('allow_domains'),
+                             deny_domains=self.get('deny_domains'),
+                             restrict_css=self.get('restrict_css'),
+                             restrict_xpaths=self.get('restrict_xpaths'))
 
 
 # {
