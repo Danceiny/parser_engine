@@ -182,8 +182,10 @@ class PEParser(object):
         """
         if not t:
             return o
-        elif t == 'singleton' and utils.is_sequence(o):
-            return o[0]
+        elif t == 'singleton':
+            if utils.is_sequence(o):
+                return o[0]
+            return o
         elif t == 'map' and utils.is_string_like(o):
             return json.loads(o)
         elif t == 'int':
