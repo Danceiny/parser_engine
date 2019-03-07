@@ -14,7 +14,7 @@ class PETemplate(object):
     @classmethod
     def from_json(cls, s):
         if not s:
-            raise ModuleNotFoundError
+            raise RuntimeError("init " + cls.__name__ + " from empty json/dict")
         s = copy.deepcopy(s)
         if not isinstance(s, dict):
             try:
@@ -24,7 +24,7 @@ class PETemplate(object):
         fields = s.pop("fields", tuple())
         if fields:
             fields = [PEField(field.pop('key'), **field) for field in fields if field.get('key')]
-        return cls(s.pop('name', s.pop('id')), fields, **s)
+        return cls(s.pop('name'), fields, **s)
 
     def get(self, key):
         try:
