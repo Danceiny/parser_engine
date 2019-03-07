@@ -74,7 +74,6 @@ class PEParser(object):
         """
         item = {}
         for field in self.tpl.fields:
-            self.log("field", field.key)
             selector_list = None
             if field._xpath:
                 selector_list = response.xpath(field.__xpath)
@@ -125,37 +124,34 @@ class PEParser(object):
                 data = data[parent.get('json_path')]
         if utils.is_sequence(data):
             items = []
-            print("pe debug", len(data))
-            i = 0
             for d in data:
-                i += 1
-                print(i)
-                # print(len(items), data)
                 item = {}
-                print("id", id(item), self.tpl.fields)
                 continue_flag = False
-                for field in self.tpl.fields:
-                    value = None
-                    if field.json_key:
-                        value = d.get(field.json_key)
-                    elif field.json_path:
-                        value = [match.value for match in jsonpath.parse(field.json_path).find(d)]
-                    # FIXME: more robust required check
-                    if not value and field.default_value is not None:
-                        value = field.default_value
-                    else:
-                        value = self.cast(value, field.value_type)
-                    if field.required and not value:
-                        print("===========")
-                        continue_flag = True
-                        break
-                    self.log("field", field.key, value)
-                    item[field.key] = value
+                if isinstance(d, dict):
+                    if self.tpl.extract_keys:
+                        for key in self.tpl.extract_keys:
+                            item[key] = d.get(key)
+                    elif self.tpl.extract_keys_map:
+                        for json_key, key in self.tpl.extract_keys_map.items():
+                            item[key] = d.get(json_key)
+                else:
+                    for field in self.tpl.fields:
+                        value = None
+                        if field.json_key:
+                            value = d.get(field.json_key)
+                        elif field.json_path:
+                            value = [match.value for match in jsonpath.parse(field.json_path).find(d)]
+                        # FIXME: more robust required check
+                        if not value and field.default_value is not None:
+                            value = field.default_value
+                        else:
+                            value = self.cast(value, field.value_type)
+                        if field.required and not value:
+                            continue_flag = True
+                            break
+                        item[field.key] = value
                 if not continue_flag and item:
                     items.append(item)
-                else:
-                    items.append(item)
-                    print("pe debug required check why not append", continue_flag, item)
             return items
         else:
             item = {}

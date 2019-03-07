@@ -11,6 +11,9 @@ class PETemplate(object):
         for k, v in kwargs.items():
             self.__setattr__(k, v)
 
+    def __getattr__(self, item):
+        return self.get(item)
+
     @classmethod
     def from_json(cls, s):
         if not s:
