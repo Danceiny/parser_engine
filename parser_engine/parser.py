@@ -102,9 +102,8 @@ class PEParser(object):
                     v = selector_list.extract()
                 self.log("selector_list.get() return type", type(v), v)
                 if isinstance(v, Selector):
-                    item[field.key] = v.get()
-                else:
-                    item[field.key] = v
+                    v = v.get()
+                item[field.key] = self.cast(v, field.value_type)
         return item
 
     def get_item_cls(self):
