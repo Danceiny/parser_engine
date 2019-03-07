@@ -33,15 +33,17 @@ class ItemClassLoader(object):
     并且，显然 ItemClassLoader 与 ItemLoader 很不一样
     """
 
-    def __init__(self):
+    def __init__(self, lazy_load=False):
         self.settings = load_scrapy_settings()
         self.__init(self.settings)
-        self._load_all_items()
+        if not lazy_load:
+            self._load_all_items()
 
     def __init(self, settings):
         self._found = defaultdict(list)
         self._items = {}
         self.item_modules = settings.getlist('ITEM_MODULES')
+        self._loaded = False
 
     def _load_items(self, module):
         for spcls in iter_item_classes(module):
@@ -63,12 +65,17 @@ class ItemClassLoader(object):
                     warnings.warn(msg, RuntimeWarning)
                 else:
                     raise
+        self._loaded = True
 
     def list(self):
         """
         Return a list with the names of all items available in the project.
         """
+        if not self._loaded:
+            self._load_all_items()
         return list(self._items.keys())
 
     def get(self, name):
+        if not self._loaded:
+            self._load_all_items()
         return self._items.get(name, Item)

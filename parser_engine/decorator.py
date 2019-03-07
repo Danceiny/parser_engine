@@ -103,7 +103,9 @@ class Template(object):
         return Rule(LinkExtractor(allow=tpl.get('allow'),
                                   deny=tpl.get('deny'),
                                   allow_domains=tpl.get('allow_domains'),
-                                  deny_domains=tpl.get('deny_domains')),
+                                  deny_domains=tpl.get('deny_domains'),
+                                  restrict_css=tpl.get('restrict_css'),
+                                  restrict_xpaths=tpl.get('restrict_xpaths')),
                     callback=parse_with_tpl,
                     cb_kwargs=kwargs)
 
@@ -131,14 +133,14 @@ class Template(object):
 
             # when you push your `parser_engine.json` on the same level of `scrapy.cfg`, which is strongly recommended,
             # we and find the config file, and `src` not needed any more
-            @TemplateAnnotation(("tpl_id_0","tpl_id_1")
+            @TemplateAnnotation(tpls=("tpl_id_0","tpl_id_1"))
             class SpiderB(CrawlSpider):
                 name = "spider_b"
                 start_urls = ["http://example.org"]
 
                 def process_results(self, response, results):
                     for result in results:
-                        # result has been parsed by PE, should be an instance of scrapy.Item's subclass,
+                        # result has been parsed by PE, should be an instance of scrapy.Item subclass,
                         # and you can do something else, like:
                         result['channel'] = "gaode_map"
                         result['extra'] = {}
@@ -150,6 +152,7 @@ class Template(object):
             src => we use src to call `src.find_by_id('id')`
             start_urls_generator => string, method name, we use this method to get start_urls and bind it to the `cls`
             start_url_tpl_id => string, like tpl_id, but for scrapy.spiders.CrawlSpider `start_urls` contract
+            use_default_request_builder => will override `make_request_from_data` using "PE clue-schema"
         """
 
         def _deco(spcls):
@@ -169,7 +172,7 @@ class Template(object):
 
             if hasredis:
                 # allow a switch to determine whether assign the special method to spcls
-                if kw.pop('open_pe_request_builder', False):
+                if kw.pop('use_default_request_builder', False):
                     spcls.make_request_from_data = make_request_from_data
 
             suti = kw.pop('start_url_tpl_id', None)
@@ -184,9 +187,7 @@ class Template(object):
 
                     spcls._parse_start_url = _parse_start_url
 
-            if tpls and issubclass(spcls, CrawlSpider) \
-                    or issubclass(spcls, PECrawlSpider) \
-                    or issubclass(spcls, RedisCrawlSpider):
+            if tpls and issubclass(spcls, CrawlSpider):
                 spcls.rules = cls.get_rules(tpls, **kw)
             else:
                 pass

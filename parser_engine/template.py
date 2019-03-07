@@ -23,8 +23,8 @@ class PETemplate(object):
                 raise e
         fields = s.pop("fields", tuple())
         if fields:
-            fields = (PEField(field.pop('key'), **field) for field in fields if field.get('key'))
-        return cls(s.pop('name'), fields, **s)
+            fields = [PEField(field.pop('key'), **field) for field in fields if field.get('key')]
+        return cls(s.pop('name', s.pop('id')), fields, **s)
 
     def get(self, key):
         try:

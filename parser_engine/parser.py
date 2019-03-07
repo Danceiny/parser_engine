@@ -20,8 +20,8 @@ def parse_with_tpl(response, tpl, **context):
 
 class PEParser(object):
 
-    def __init__(self, tpl=None):
-        self.item_loader = ItemClassLoader()
+    def __init__(self, tpl=None, **kwargs):
+        self.item_loader = ItemClassLoader(**kwargs)
         if isinstance(tpl, PETemplate):
             self.tpl = tpl
         if isinstance(tpl, dict):
@@ -112,7 +112,10 @@ class PEParser(object):
         return self.item_loader.get(self.tpl.itemname)
 
     def parse_text(self, response):
-        data = json.loads(response.text)
+        return self._parse_text(response.body)
+
+    def _parse_text(self, body):
+        data = json.loads(body)
         parent = self.tpl.parent
         if parent:
             parent_json_key = parent.get('json_key')
@@ -122,8 +125,14 @@ class PEParser(object):
                 data = data[parent.get('json_path')]
         if utils.is_sequence(data):
             items = []
+            print("pe debug", len(data))
+            i = 0
             for d in data:
+                i += 1
+                print(i)
+                # print(len(items), data)
                 item = {}
+                print("id", id(item), self.tpl.fields)
                 continue_flag = False
                 for field in self.tpl.fields:
                     value = None
@@ -137,11 +146,16 @@ class PEParser(object):
                     else:
                         value = self.cast(value, field.value_type)
                     if field.required and not value:
+                        print("===========")
                         continue_flag = True
                         break
+                    self.log("field", field.key, value)
                     item[field.key] = value
                 if not continue_flag and item:
                     items.append(item)
+                else:
+                    items.append(item)
+                    print("pe debug required check why not append", continue_flag, item)
             return items
         else:
             item = {}
