@@ -75,9 +75,9 @@ class PEParser(object):
         item = {}
         for field in self.tpl.fields:
             selector_list = None
-            if field._xpath:
+            if field.__xpath:
                 selector_list = response.xpath(field.__xpath)
-            elif field._css:
+            elif field.__css:
                 selector_list = response.css(field.__css)
             elif field.dom_id:
                 selector_list = response.css(field.dom_id)
