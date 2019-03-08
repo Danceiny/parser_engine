@@ -3,6 +3,9 @@
 - Fresh pre-release: 
     >`pip install git+https://github.com/Danceiny/parser_engine`
 
+### TODO
+- [ ] support extracting multi item in a html node list, with one template provided
+- [ ] define extraction rule of item in `Item` class 
 ### TemplateAnnotation
 参数约定：
 - 业务名称name，即采用该注解的Spider类的name类变量

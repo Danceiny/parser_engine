@@ -6,6 +6,7 @@ from scrapy.utils import project
 import pkg_resources
 from scrapy.http import HtmlResponse, TextResponse
 
+
 class classproperty(object):
 
     def __init__(self, fget):
@@ -52,6 +53,10 @@ def load_scrapy_settings():
     return project.get_project_settings()
 
 
+def is_not_empty_list(seq):
+    return is_sequence(seq) and len(seq) > 0
+
+
 def load_config_data():
     settings = load_scrapy_settings()
     db_table = settings.get('PARSER_ENGINE_CONFIG_TABLE')
@@ -87,4 +92,3 @@ def is_json(s):
         return True
     except ValueError:
         return False
-

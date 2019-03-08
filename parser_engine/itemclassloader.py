@@ -18,8 +18,8 @@ def iter_item_classes(module):
     # singleton in scrapy.spider.spiders
     for obj in six.itervalues(vars(module)):
         if inspect.isclass(obj) and \
-                issubclass(obj, Item) and \
-                obj.__module__ == module.__name__:
+            issubclass(obj, Item) and \
+            obj.__module__ == module.__name__:
             yield obj
 
 
@@ -78,4 +78,4 @@ class ItemClassLoader(object):
     def get(self, name):
         if not self._loaded:
             self._load_all_items()
-        return self._items.get(name, Item)
+        return self._items.get(name)

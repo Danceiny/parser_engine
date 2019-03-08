@@ -4,7 +4,28 @@ from scrapy.spiders import Rule, CrawlSpider
 from scrapy.linkextractors import LinkExtractor
 from .template import PETemplate
 from .parser import parse_with_tpl
-from .utils import is_sequence, load_config_data, classproperty, is_string_like, is_string
+from .utils import is_sequence, load_config_data, classproperty, is_string
+
+
+# following code comes from scrapy.spiders.CrawlSpider._compile_rules
+def _compile_rules_patch(self):
+    def get_method(method):
+        if callable(method):
+            return method
+        elif isinstance(method, six.string_types):
+            return getattr(self, method, None)
+
+    self._rules = [copy.copy(r) for r in self.rules]
+    for rule in self._rules:
+        # diff start
+        tpl_id = rule.cb_kwargs.pop('tpl_id', None)
+        if tpl_id:
+            tpl = PETemplate.from_json(find_by_id(tpl_id))
+            rule.link_extractor = tpl.get_link_extractor()
+            rule.callback = parse_with_tpl
+        # diff end
+        rule.process_links = get_method(rule.process_links)
+        rule.process_request = get_method(rule.process_request)
 
 
 # todo: build request
@@ -69,11 +90,10 @@ class Template(object):
             rules = [cls.get_rule(cls.src.find_by_id(tpl_id), **kwargs) for tpl_id in tpls]
         else:
             rules = []
-            if is_string(tpls[0]):
-                for tpl in tpls:
+            for tpl in tpls:
+                if is_string(tpls):
                     rules.append(cls.get_rule_by_id(tpl, **kwargs))
-            else:
-                for tpl in tpls:
+                else:
                     rules.append(cls.get_rule(tpl, **kwargs))
         return rules
 
@@ -81,7 +101,7 @@ class Template(object):
     def get_rule_by_id(cls, tpl_id, **kwargs):
         """
         Deprecated: 😒仅通过一个tpl_id如何构造LinkExtractor？
-        Solution：先生成Rule对象，后面再想办法给它打补丁
+        Solution：先生成Rule对象，后面再想办法给它打补丁 => _compile_rules_patch
         :param tpl_id:
         :param kwargs:
         :return:
@@ -188,27 +208,9 @@ class Template(object):
 
             if tpls and issubclass(spcls, CrawlSpider):
                 spcls.rules = cls.get_rules(tpls, **kw)
-                if not cls.src and customize_link_extractor and is_string(tpls) or is_string(tpls[0]):
-                    # following code comes from scrapy.spiders.CrawlSpider._compile_rules
-                    def _compile_rules(self):
-                        def get_method(method):
-                            if callable(method):
-                                return method
-                            elif isinstance(method, six.string_types):
-                                return getattr(self, method, None)
-
-                        self._rules = [copy.copy(r) for r in self.rules]
-                        for rule in self._rules:
-                            # diff start
-                            tpl = PETemplate.from_json(find_by_id(rule.cb_kwargs['tpl_id']))
-                            rule.link_extractor = tpl.get_link_extractor()
-                            rule.callback = parse_with_tpl
-                            # diff end
-                            rule.process_links = get_method(rule.process_links)
-                            rule.process_request = get_method(rule.process_request)
-
+                if not cls.src and customize_link_extractor:
                     # do patch
-                    spcls._compile_rules = _compile_rules
+                    spcls._compile_rules = _compile_rules_patch
             else:
                 pass
                 # FIXME: scrapy.Spider && scrapy_redis.spiders.RedisSpider case

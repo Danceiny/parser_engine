@@ -4,6 +4,7 @@ import json
 import copy
 import six
 from .utils import is_string
+from .log import log
 from scrapy.linkextractors import LinkExtractor
 
 
@@ -72,7 +73,7 @@ class PEField(dict):
         super().__init__(**kwargs)
         if not self.xpath and self.tags:
             self._compile_xpath()
-        if not self.css:
+        if not self.css and self.attr_name:
             self._compile_css()
 
     def __repr__(self):
@@ -86,7 +87,7 @@ class PEField(dict):
 
     def _compile_xpath(self):
         self._compile_xpath_tag_condition()
-        self.xpath = "//{tag}{tag_condition}{attribute_to_extract}{suffix}".format(
+        self.xpath = "./{tag}{tag_condition}{attribute_to_extract}{suffix}".format(
             # match tag
             tag='/'.join(self.tags),
             # tag match attribute
@@ -98,8 +99,10 @@ class PEField(dict):
             # select text as default (without attr_name provided)
             suffix="/text()" if not self.attr_name else "",
         )
+        log("field [%s] xpath: \"%s\"" % (self.key, self.xpath))
 
     def _compile_css(self):
+        # todo: compile complicated css like `response.css('a[href*=image] img::attr(src)').getall()`
         pass
 
     def _compile_xpath_tag_condition(self):
