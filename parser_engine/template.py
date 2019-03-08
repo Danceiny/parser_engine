@@ -2,7 +2,8 @@
 
 import json
 import copy
-
+import six
+from .utils import is_string
 from scrapy.linkextractors import LinkExtractor
 
 
@@ -53,7 +54,7 @@ class PETemplate(object):
 #   xpath: xpath query in scrapy Selector.xpath
 #   tags: [] // like div, a,  etc. e.g: [div,a] => div->a
 #   classes: [] // css class match, e.g: classes=["classA", "classB"] => class="classA classB"
-#   attributes: string // xpath [@{attributes}]
+#   attributes: string // xpath [{attributes}]
 #   position: int
 #
 #   key: string // value's key
@@ -69,6 +70,10 @@ class PEField(dict):
     def __init__(self, key, **kwargs):
         kwargs['key'] = key
         super().__init__(**kwargs)
+        if not self.xpath and self.tags:
+            self._compile_xpath()
+        if not self.css:
+            self._compile_css()
 
     def __repr__(self):
         return self.__str__()
@@ -78,3 +83,59 @@ class PEField(dict):
 
     def __getattr__(self, item):
         return self.get(item)
+
+    def _compile_xpath(self):
+        self._compile_xpath_tag_condition()
+        self.xpath = "//{tag}{tag_condition}{attribute_to_extract}{suffix}".format(
+            # match tag
+            tag='/'.join(self.tags),
+            # tag match attribute
+            tag_condition='[' + self.tag_condition + "]" if self.tag_condition
+            # tag match position (without attribute match provided)
+            else self.get_xpath_by_position(self.position),
+            # select attribute
+            attribute_to_extract="/@" + self.attr_name if self.attr_name else "",
+            # select text as default (without attr_name provided)
+            suffix="/text()" if not self.attr_name else "",
+        )
+
+    def _compile_css(self):
+        pass
+
+    def _compile_xpath_tag_condition(self):
+        attr = self.attributes
+        if is_string(attr):
+            self.tag_condition = attr
+        elif isinstance(attr, dict):
+            s = []
+            for k, v in attr.items():
+                s.append('@' + k + '=' + self._cast_value(v))
+            self.tag_condition = 'and'.join(s)
+        elif isinstance(attr, list):
+            s = []
+            for i in attr:
+                s.append('@' + i[0] + self._cast_operator(i[1]) + self._cast_value(i[2]))
+
+            self.tag_condition = 'and'.join(s)
+
+    @staticmethod
+    def _cast_operator(origin):
+        return origin
+
+    @staticmethod
+    def _cast_value(origin):
+        if is_string(origin):
+            return '"' + origin + '"'
+        return origin
+
+    @staticmethod
+    def get_xpath_by_position(position):
+        if position is None or position == '':
+            return ""
+        if isinstance(position, six.string_types) and (position.startswith('>') or position.startswith('<')):
+            return "[position()%s]" % position
+        pos = int(position)
+        if pos > 0:
+            return "[%d]" % pos
+        elif pos < 0:
+            return "[last()-%d]" % (abs(pos) - 1)

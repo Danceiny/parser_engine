@@ -1,6 +1,5 @@
 from scrapy.selector import Selector, SelectorList
 import json
-import six
 import jsonpath_rw as jsonpath
 from . import utils
 from .itemclassloader import ItemClassLoader
@@ -54,18 +53,6 @@ class PEParser(object):
         else:
             return datas
 
-    @staticmethod
-    def get_xpath_by_position(position):
-        if position is None or position == '':
-            return ""
-        if isinstance(position, six.string_types) and (position.startswith('>') or position.startswith('<')):
-            return "[position()%s]" % position
-        pos = int(position)
-        if pos > 0:
-            return "[%d]" % pos
-        elif pos < 0:
-            return "[last()-%d]" % (abs(pos) - 1)
-
     def parse_html(self, response):
         """
         return
@@ -79,22 +66,6 @@ class PEParser(object):
                 selector_list = response.xpath(field.xpath)
             elif field.css:
                 selector_list = response.css(field.css)
-            elif field.dom_id:
-                selector_list = response.css(field.dom_id)
-            elif field.tags:
-                selector_list = response.xpath(
-                    "//{tag}{tag_condition}{attribute_to_extract}{suffix}".format(
-                        # match tag
-                        tag='/'.join(field.tags),
-                        # tag match attribute
-                        tag_condition='[@' + field.attributes + "]" if field.attributes
-                        # tag match position (without attribute match provided)
-                        else self.get_xpath_by_position(field.position),
-                        # select attribute
-                        attribute_to_extract="/@" + field.attr_name if field.attr_name else "",
-                        # select text as default (without attr_name provided)
-                        suffix="/text()" if not field.attr_name else "",
-                    ))
             if selector_list:
                 if field.regexp:
                     v = selector_list.re(field.regexp)
