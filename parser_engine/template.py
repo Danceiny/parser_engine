@@ -49,8 +49,8 @@ class PETemplate(object):
 
 # {
 #   dom_id: string // document.getElementById
-#     __css: css query in scrapy Selector.css
-#     __xpath: xpath query in scrapy Selector.xpath
+#   css: css query in scrapy Selector.css
+#   xpath: xpath query in scrapy Selector.xpath
 #   tags: [] // like div, a,  etc. e.g: [div,a] => div->a
 #   classes: [] // css class match, e.g: classes=["classA", "classB"] => class="classA classB"
 #   attributes: string // xpath [@{attributes}]
