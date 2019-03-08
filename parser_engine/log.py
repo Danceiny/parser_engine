@@ -1,4 +1,8 @@
-def log(data, *msgs, **kwargs):
+def info(data, *msgs, **kwargs):
+    print("[parser engine] ", str(data), ' '.join([str(msg) for msg in msgs]), pretty_dict_str(kwargs))
+
+
+def debug(data, *msgs, **kwargs):
     print("[parser engine] ", str(data), ' '.join([str(msg) for msg in msgs]), pretty_dict_str(kwargs))
 
 

@@ -5,7 +5,7 @@ import jsonpath_rw as jsonpath
 from . import utils
 from .itemclassloader import ItemClassLoader
 from .template import PETemplate
-from .log import log
+from .log import info
 
 
 def parse_with_tpl(response, tpl, **context):
@@ -24,7 +24,7 @@ class PEParser(object):
         self.item_loader = ItemClassLoader(**kwargs)
         if isinstance(tpl, PETemplate):
             self.tpl = tpl
-        if isinstance(tpl, dict):
+        elif isinstance(tpl, dict):
             self.tpl = PETemplate.from_json(tpl)
 
     def __call__(self, response, **context):
@@ -49,11 +49,14 @@ class PEParser(object):
 
     def transfer(self, datas):
         item_cls = self.get_item_cls()
-        log(item_cls, "Item class loaded")
+        info(item_cls, "Item class loaded")
         if item_cls:
             return [item_cls(data) for data in datas]
         else:
             return datas
+
+    def get_item_cls(self):
+        return self.item_loader.get(self.tpl.itemname)
 
     def parse_html(self, response):
         """
@@ -63,46 +66,70 @@ class PEParser(object):
         """
         return self._parse_html(response)
 
-    def _set_item_value(self, item, value, field):
-        """
-        :param item:
-        :param value:
-        :param field:
-        :return: True => required but missed
-        """
-        if not value and field.default_value is not None:
-            value = field.default_value
+    def _parse_html(self, root):
+        parent = self.tpl.parent
+        if parent:
+            parent_xpath = parent.get('xpath')
+            if parent_xpath:
+                root = root.xpath(parent_xpath)
+            else:
+                root = root.css(parent.get('css'))
+        if utils.is_sequence(root):
+            return self._parse_html_node_list(root)
         else:
-            value = self.cast(value, field.value_type)
-        # FIXME: more robust required check
-        if field.required and not value:
-            return True
-        item[field.key] = value
+            return self._parse_html_item(root),
 
     def _parse_html_node_list(self, root):
         items = []
         for d in root:
-            item = {}
-            break_flag = False
-            for field in self.tpl.fields:
-                selector_list = None
-                if field.xpath:
-                    selector_list = d.xpath(field.xpath)
-                elif field.css:
-                    selector_list = d.css(field.css)
-                if selector_list:
-                    if field.regexp:
-                        value = selector_list.re(field.regexp)
-                    else:
-                        value = selector_list.extract()
-                    if isinstance(value, Selector):
-                        value = value.extract()
-                    break_flag = self._set_item_value(item, value, field)
-                    if break_flag:
-                        break
-            if not break_flag and item:
+            item = self._parse_html_item(d)
+            if item:
                 items.append(item)
         return items
+
+    def _parse_html_item(self, root):
+        item = {}
+        for field in self.tpl.fields:
+            selector_list = None
+            if field.xpath:
+                selector_list = root.xpath(field.xpath)
+            elif field.css:
+                selector_list = root.css(field.css)
+            if selector_list:
+                if field.regexp:
+                    value = selector_list.re(field.regexp)
+                else:
+                    value = selector_list.extract()
+                if isinstance(value, Selector):
+                    value = value.extract()
+                break_flag = self._set_item_value(item, value, field)
+                if break_flag:
+                    return
+        return item
+
+    def parse_text(self, response):
+        return self._parse_text(response.body)
+
+    def _parse_text(self, body):
+        data = json.loads(body)
+        parent = self.tpl.parent
+        if parent:
+            parent_json_key = parent.get('json_key')
+            if parent_json_key:
+                data = data[parent_json_key]
+            else:
+                data = data[parent.get('json_path')]
+        if utils.is_sequence(data):
+            return self._parse_text_node_list(data)
+        else:
+            item = {}
+            for field in self.tpl.fields:
+                try:
+                    item[field.key] = self.cast([match.value for match in jsonpath.parse(field.json_path).find(data)],
+                                                field.value_type)
+                except Exception as e:
+                    info(e)
+            return item,  # Attention: return iterable tuple
 
     def _parse_text_node_list(self, root):
         items = []
@@ -131,65 +158,26 @@ class PEParser(object):
                 items.append(item)
         return items
 
-    def _parse_html(self, root):
-        parent = self.tpl.parent
-        if parent:
-            parent_xpath = parent.get('xpath')
-            if parent_xpath:
-                root = root.xpath(parent_xpath)
-            else:
-                root = root.css(parent.get('css'))
-        if utils.is_sequence(root):
-            return self._parse_html_node_list(root)
+    def _set_item_value(self, item, value, field):
+        """
+        :param item: will update it
+        :param value:
+        :param field: PEField instance
+        :return: True => required but missed, which means caller should discard this item
+        """
+        if not value and field.default_value is not None:
+            value = field.default_value
         else:
-            item = {}
-            for field in self.tpl.fields:
-                selector_list = None
-                if field.xpath:
-                    selector_list = root.xpath(field.xpath)
-                elif field.css:
-                    selector_list = root.css(field.css)
-                if selector_list:
-                    if field.regexp:
-                        value = selector_list.re(field.regexp)
-                    else:
-                        value = selector_list.extract()
-                    if isinstance(value, Selector):
-                        value = value.extract()
-                    item[field.key] = self.cast(value, field.value_type)
-            return item,
-
-    def get_item_cls(self):
-        return self.item_loader.get(self.tpl.itemname)
-
-    def parse_text(self, response):
-        return self._parse_text(response.body)
-
-    def _parse_text(self, body):
-        data = json.loads(body)
-        parent = self.tpl.parent
-        if parent:
-            parent_json_key = parent.get('json_key')
-            if parent_json_key:
-                data = data[parent_json_key]
-            else:
-                data = data[parent.get('json_path')]
-        if utils.is_sequence(data):
-            return self._parse_text_node_list(data)
-        else:
-            item = {}
-            for field in self.tpl.fields:
-                try:
-                    item[field.key] = self.cast([match.value for match in jsonpath.parse(field.json_path).find(data)],
-                                                field.value_type)
-                except Exception as e:
-                    log(e)
-            return item,  # Attention: return iterable tuple
+            value = self.cast(value, field.value_type)
+        # FIXME: more robust required check
+        if field.required and not value:
+            return True
+        item[field.key] = value
 
     @staticmethod
     def cast(o, t):
         """
-
+        cast o to type t
         :param o: origin value
         :param t: type
                     singleton

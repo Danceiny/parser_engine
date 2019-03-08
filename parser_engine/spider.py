@@ -5,15 +5,11 @@ import functools
 from scrapy.http import Request, HtmlResponse
 from scrapy.utils.spider import iterate_spider_output
 from scrapy.spiders import Spider, Rule, CrawlSpider
+from scrapy.spiders.crawl import identity
 from scrapy.linkextractors import LinkExtractor
 
 from .parser import PEParser
 from .template import PETemplate
-
-
-def identity(x):
-    return x
-
 
 default_link_extractor = LinkExtractor()
 

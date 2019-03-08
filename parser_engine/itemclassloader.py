@@ -17,9 +17,7 @@ def iter_item_classes(module):
     # this needs to be imported here until get rid of the spider manager
     # singleton in scrapy.spider.spiders
     for obj in six.itervalues(vars(module)):
-        if inspect.isclass(obj) and \
-            issubclass(obj, Item) and \
-            obj.__module__ == module.__name__:
+        if inspect.isclass(obj) and issubclass(obj, Item) and obj.__module__ == module.__name__:
             yield obj
 
 
@@ -60,8 +58,7 @@ class ItemClassLoader(object):
             except ImportError as e:
                 if self.warn_only:
                     msg = ("\n{tb}Could not load spiders from module '{modname}'. "
-                           "See above traceback for details.".format(
-                        modname=name, tb=traceback.format_exc()))
+                           "See above traceback for details.".format(modname=name, tb=traceback.format_exc()))
                     warnings.warn(msg, RuntimeWarning)
                 else:
                     raise
