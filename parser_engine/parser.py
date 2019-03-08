@@ -153,7 +153,7 @@ class PEParser(object):
         if not t:
             return o
         elif t == 'singleton':
-            if utils.is_sequence(o):
+            if utils.is_sequence(o) and len(o) > 0:
                 return o[0]
             return o
         elif t == 'map' and utils.is_string_like(o):
