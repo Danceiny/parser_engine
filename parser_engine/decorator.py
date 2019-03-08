@@ -91,7 +91,7 @@ class Template(object):
         else:
             rules = []
             for tpl in tpls:
-                if is_string(tpls):
+                if is_string(tpl):
                     rules.append(cls.get_rule_by_id(tpl, **kwargs))
                 else:
                     rules.append(cls.get_rule(tpl, **kwargs))
@@ -197,14 +197,19 @@ class Template(object):
             suti = kw.pop('start_url_tpl_id', kw.pop('start_url_tpl', None))
             if suti:
                 rules = cls.get_rules(suti, **kw)
-                if len(rules) >= 1:
-                    spcls.start_rule = rules[0]
 
-                    # keep pace with CrawlSpider.parse_start_url
-                    def _parse_start_url(self, response):
+                # keep pace with CrawlSpider.parse_start_url
+                def _parse_start_url(self, response, tpl_index_or_id=None):
+                    if tpl_index_or_id is None:
                         return rules[0].callback(response, **rules[0].cb_kwargs)
+                    if isinstance(tpl_index_or_id, int):
+                        return rules[tpl_index_or_id].callback(response, **rules[tpl_index_or_id].cb_kwargs)
+                    else:
+                        for rule in rules:
+                            if tpl_index_or_id == rule.cb_kwargs.get('tpl_id'):
+                                return rule.callback(response, **rule.cb_kwargs)
 
-                    spcls._parse_start_url = _parse_start_url
+                spcls._parse_start_url = _parse_start_url
 
             if tpls and issubclass(spcls, CrawlSpider):
                 spcls.rules = cls.get_rules(tpls, **kw)
