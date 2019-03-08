@@ -5,6 +5,7 @@ from scrapy.linkextractors import LinkExtractor
 from .template import PETemplate
 from .parser import parse_with_tpl
 from .utils import is_sequence, load_config_data, classproperty, is_string
+from .singleton import Singleton
 
 
 # following code comes from scrapy.spiders.CrawlSpider._compile_rules
@@ -66,6 +67,7 @@ def find_by_id(tpl_id):
             return tpl
 
 
+@Singleton
 class Template(object):
     # should implements
     # def find_by_id(tpl_id):

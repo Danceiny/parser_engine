@@ -4,7 +4,7 @@ from parser_engine import TemplateAnnotation, Template
 from scrapy.spiders import CrawlSpider
 
 
-@TemplateAnnotation(("demo", "json-api-demo"), channel_id="cannot.cc", channel="Danceiny")
+@TemplateAnnotation(tpls=("demo", "json-api-demo"), channel_id="cannot.cc", channel="Danceiny")
 class DemoSpider(PECrawlSpider):
     name = "demo"
 
@@ -56,7 +56,7 @@ class DemoSpider3(PECrawlSpider):
         return results
 
 
-@Template.PageTemplate("demo")
+@Template.PageTemplate(tpls="demo")
 class DemoSpider4(CrawlSpider):
     name = "demo4"
     start_urls = [

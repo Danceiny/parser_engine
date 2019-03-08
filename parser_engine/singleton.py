@@ -60,6 +60,9 @@ class Singleton(object):
         """
         return isinstance(inst, self.__cls)
 
+    def __getattr__(self, item):
+        return getattr(self.__instance, item)
+
 
 from threading import Lock
 
