@@ -129,5 +129,100 @@ def test_parse_text():
     print(items)
 
 
+def parse_text_xpath():
+    tpl = {"name": "customerUpdate",
+     "itemname": 'CustomerItem',
+     "fields": [{
+         "key": "name",
+         "tags": ["td", "input"],
+         "attributes": "alt=\"姓名\"",
+         "attr_name": "value",
+         "value_type": "singleton"
+     }, {
+         "key": "outbound_time",
+         "tags": ["td", "input"],
+         "attributes": "alt=\"出库时间\"",
+         "attr_name": "value",
+         "value_type": "singleton"
+     }, {
+         "key": "mobile1",
+         "tags": ["td", "input"],
+         "attributes": "alt=\"\"",
+         "attr_name": "value",
+         "value_type": "singleton"
+     }, {
+         "key": "wechat",
+         "tags": ["td", "input"],
+         "attributes": "alt=\"微信号\"",
+         "attr_name": "value",
+         "value_type": "singleton"
+     }, {
+         "key": "nickname",
+         "tags": ["td", "input"],
+         "attributes": "alt=\"昵称\"",
+         "attr_name": "value",
+         "value_type": "singleton"
+     }, {
+         "key": "qualified_company_name",
+         "tags": ["td", "input"],
+         "attributes": "alt=\"认证公司名称\"",
+         "attr_name": "value",
+         "value_type": "singleton"
+     }, {
+         "key": "first_category",
+         "tags": ["td", "input"],
+         "attributes": "alt=\"一级类目\"",
+         "attr_name": "value",
+         "value_type": "singleton"
+     }, {
+         "key": "second_category",
+         "tags": ["td", "input"],
+         "attributes": "alt=\"二级类目\"",
+         "attr_name": "value",
+         "value_type": "singleton"
+     }, {
+         "key": "city",
+         "tags": ["td", "input"],
+         "attributes": "alt=\"所在城市\"",
+         "attr_name": "value",
+         "value_type": "singleton"
+     }, {
+         "key": "leads_src",
+         "__xpath": "//td//select[@alt=\"线索来源\"]/option[@selected and @value != '']/text()",
+         "value_type": "singleton"
+     }, {
+         "key": "douyin_mobile",
+         "tags": ["td", "input"],
+         "attributes": "alt=\"注册抖音手机\"",
+         "attr_name": "value",
+         "value_type": "singleton"
+     }, {
+         "key": "douyin_nickname",
+         "tags": ["td", "input"],
+         "attributes": "alt=\"抖音用户昵称\"",
+         "attr_name": "value",
+         "value_type": "singleton"
+     }, {
+         "key": "douyin_id",
+         "tags": ["td", "input"],
+         "attributes": "alt=\"抖音ID号\"",
+         "attr_name": "value",
+         "value_type": "singleton"
+     }, {
+         "key": "company_name",
+         "tags": ["td", "input"],
+         "attributes": "alt=\"公司名称\"",
+         "attr_name": "value",
+         "value_type": "singleton"
+     }, {
+         "key": "create_time",
+         "tags": ["td", "input"],
+         "attributes": "alt=\"创建时间\"",
+         "attr_name": "value",
+         "value_type": "singleton"
+     }]
+     }
+    PEParser(tpl).parse_html(None)
+
 if __name__ == '__main__':
     test_parse_text()
