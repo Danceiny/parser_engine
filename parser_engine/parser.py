@@ -71,9 +71,8 @@ class PEParser(object):
                     v = selector_list.re(field.regexp)
                 else:
                     v = selector_list.extract()
-                self.log("selector_list.get() return type", type(v), v)
                 if isinstance(v, Selector):
-                    v = v.get()
+                    v = v.extract()
                 item[field.key] = self.cast(v, field.value_type)
         return item
 
