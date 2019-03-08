@@ -2,6 +2,7 @@ from six.moves.urllib.parse import urljoin, urlencode
 from scrapy.http.request import Request
 from scrapy.utils.python import to_bytes, is_listlike
 import json
+from scrapy.http.request.form import FormRequest
 
 
 class JsonRequest(Request):
@@ -25,3 +26,12 @@ def _urlencode(seq, enc):
               for k, vs in seq
               for v in (vs if is_listlike(vs) else [vs])]
     return urlencode(values, doseq=True)
+
+
+def make_request(url, method='GET', formdata=None, jsondata=None, headers=None, **kwargs):
+    if formdata:
+        return FormRequest(url=url, method=method, formdata=formdata, headers=headers, **kwargs)
+    elif jsondata:
+        return JsonRequest(url=url, method=method, jsondata=jsondata, headers=headers, **kwargs)
+    else:
+        return Request(url, method=method, headers=headers, **kwargs)

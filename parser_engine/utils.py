@@ -6,7 +6,6 @@ from scrapy.utils import project
 import pkg_resources
 from scrapy.http import HtmlResponse, TextResponse
 
-
 class classproperty(object):
 
     def __init__(self, fget):
@@ -88,3 +87,4 @@ def is_json(s):
         return True
     except ValueError:
         return False
+
