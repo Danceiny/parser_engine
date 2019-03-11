@@ -1,6 +1,5 @@
 import copy
 import six
-import functools
 
 from scrapy.http import Request, HtmlResponse
 from scrapy.utils.spider import iterate_spider_output
@@ -37,15 +36,6 @@ class PERule(Rule):
 
     def __str__(self):
         return '<PERule> template：' + str(self.template)
-
-
-def Override(func):
-    @functools.wraps(func)
-    def decorator():
-        result = func()
-        return result
-
-    return decorator
 
 
 class PECrawlSpider(Spider):

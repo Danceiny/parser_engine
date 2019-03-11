@@ -4,6 +4,8 @@
 # https://github.com/reyoung/singleton
 __author__ = ['reyoung', 'danceiny']
 
+from threading import Lock
+
 
 class Singleton(object):
     """
@@ -15,7 +17,7 @@ class Singleton(object):
         class IntSingleton(object):
             def __init__(self):
                 pass
-    Use IntSingleton.instance() get the instance
+    Use IntSingleton() get the instance
     """
 
     def __init__(self, cls):
@@ -64,9 +66,6 @@ class Singleton(object):
         return getattr(self.__instance, item)
 
 
-from threading import Lock
-
-
 class ThreadSafeSingleton(object):
     def __init__(self, cls):
         self.__cls = cls
@@ -103,3 +102,6 @@ class ThreadSafeSingleton(object):
         Helper for isinstance check
         """
         return isinstance(inst, self.__cls)
+
+    def __getattr__(self, item):
+        return getattr(self.__instance, item)
