@@ -5,7 +5,7 @@ import jsonpath_rw as jsonpath
 from . import utils
 from .itemclassloader import ItemClassLoader
 from .template import PETemplate
-from .log import info
+from .log import info, warning
 
 
 def parse_with_tpl(response, tpl, **context):
@@ -128,7 +128,7 @@ class PEParser(object):
                     item[field.key] = self.cast([match.value for match in jsonpath.parse(field.json_path).find(data)],
                                                 field.value_type)
                 except Exception as e:
-                    info(e)
+                    warning(e)
             return item,  # Attention: return iterable tuple
 
     def _parse_text_node_list(self, root):

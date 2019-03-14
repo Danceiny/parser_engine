@@ -4,8 +4,8 @@ import json
 import copy
 import six
 from .utils import is_string
-from .log import info
 from scrapy.linkextractors import LinkExtractor
+from . import log
 
 
 class PETemplate(object):
@@ -99,7 +99,8 @@ class PEField(dict):
             # select text as default (without attr_name provided)
             suffix="/text()" if not self.attr_name else "",
         )
-        info("field [%s] xpath: \"%s\"" % (self.key, self.xpath))
+
+        log.debug("field [%s] xpath: \"%s\"" % (self.key, self.xpath))
 
     def _compile_css(self):
         # todo: compile complicated css like `response.css('a[href*=image] img::attr(src)').getall()`

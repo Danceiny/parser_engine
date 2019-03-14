@@ -4,8 +4,9 @@ from scrapy.spiders import Rule, CrawlSpider
 from scrapy.linkextractors import LinkExtractor
 from .template import PETemplate
 from .parser import parse_with_tpl
-from .utils import is_sequence, load_config_data, classproperty, is_string
+from .utils import is_sequence, is_string
 from .singleton import Singleton
+from .config import init_config, get_config_data
 
 
 # following code comes from scrapy.spiders.CrawlSpider._compile_rules
@@ -62,7 +63,7 @@ def find_by_id(tpl_id):
     :param tpl_id:
     :return:
     """
-    for tpl in Template.config_data['templates']:
+    for tpl in get_config_data()['templates']:
         if tpl.get('name') == tpl_id:
             return tpl
 
@@ -73,14 +74,6 @@ class Template(object):
     # def find_by_id(tpl_id):
     #     return dict()
     src = None
-
-    _config_data = None
-
-    @classproperty
-    def config_data(cls):
-        if not cls._config_data:
-            cls._config_data = load_config_data()
-        return cls._config_data
 
     @classmethod
     def get_rules(cls, tpls, **kwargs):
@@ -236,4 +229,5 @@ class Template(object):
         return _deco
 
     def __call__(self, **kwargs):
+        init_config()
         return self.PageTemplate(**kwargs)

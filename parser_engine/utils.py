@@ -3,7 +3,6 @@ import six
 import os
 import json
 from scrapy.utils import project
-import pkg_resources
 from scrapy.http import HtmlResponse, TextResponse
 
 
@@ -55,25 +54,6 @@ def load_scrapy_settings():
 
 def is_not_empty_list(seq):
     return is_sequence(seq) and len(seq) > 0
-
-
-def load_config_data():
-    settings = load_scrapy_settings()
-    db_table = settings.get('PARSER_ENGINE_CONFIG_TABLE')
-    if db_table:
-        # todo
-        pass
-    else:
-        config_path = settings.get("PARSER_ENGINE_CONFIG_FILE", 'parser_engine.json')
-        if not os.path.isabs(config_path):
-            config_path1 = closest_parser_engine_json(config_path)
-            if not config_path1:
-                resource_package = __name__
-                resource_path = '/'.join(('templates', config_path))
-                return json.load(pkg_resources.resource_stream(resource_package, resource_path))
-            config_path = config_path1
-        with open(config_path, mode='rb') as f:
-            return json.loads(f.read())
 
 
 def is_html_response(response):
