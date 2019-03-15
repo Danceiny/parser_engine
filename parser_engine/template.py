@@ -87,7 +87,7 @@ class PEField(dict):
 
     def _compile_xpath(self):
         self._compile_xpath_tag_condition()
-        self.xpath = "./{tag}{tag_condition}{attribute_to_extract}{suffix}".format(
+        self.xpath = ".//{tag}{tag_condition}{attribute_to_extract}{suffix}".format(
             # match tag
             tag='/'.join(self.tags),
             # tag match attribute
