@@ -1,6 +1,8 @@
-from .clue import ClueItem, ClueModel
+from .items import ClueItem
+from .models import ClueModel
 
 
+# persistent Clue
 class CluePersistentPipeline(object):
 
     def process_item(self, item, spider):
@@ -14,9 +16,10 @@ class CluePersistentPipeline(object):
         return item
 
 
+# route clue to queue
 class CluePipeline(object):
     def process_item(self, item, spider):
         if isinstance(item, ClueItem):
             spider.info('CluePipeline route clue [clue_id] %s to queue' % item['req'].meta.get('clue_id'))
-            spider.route_task('%s:%s:start_urls' % (item['project'], item['spider']), item['req'])
+            spider.route_clue('%s:%s:start_urls' % (item['project'], item['spider']), item['req'])
         return item

@@ -1,5 +1,5 @@
 from __future__ import print_function
-from setuptools import setup
+from setuptools import setup, find_packages
 import parser_engine
 
 setup(
@@ -11,7 +11,7 @@ setup(
     long_description=open("README.md").read(),
     license="MIT",
     url="https://gitlab.baixing.cn/spider/parser_engine",
-    packages=["parser_engine"],
+    packages=find_packages(),
     install_requires=[
         "six",
         "jsonpath-rw",

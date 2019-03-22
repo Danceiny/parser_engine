@@ -2,6 +2,7 @@ import copy
 import six
 from scrapy.spiders import Rule, CrawlSpider
 from scrapy.linkextractors import LinkExtractor
+
 from .template import PETemplate
 from .parser import parse_with_tpl
 from .utils import is_sequence, is_string

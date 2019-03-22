@@ -5,16 +5,15 @@ import logging
 
 from scrapy.http import Request, HtmlResponse
 from scrapy.utils.spider import iterate_spider_output
-from scrapy.spiders import Spider, Rule
+from scrapy.spiders import Rule, CrawlSpider
 from scrapy.spiders.crawl import identity
 from scrapy.linkextractors import LinkExtractor
 from scrapy_redis.spiders import RedisCrawlSpider
-from scrapy_redis import defaults
+from scrapy_redis.defaults import START_URLS_AS_SET
 
 from .request import TaskRequest
 from .parser import PEParser
 from .template import PETemplate
-from .clue import ClueModel
 
 default_link_extractor = LinkExtractor()
 
@@ -44,9 +43,8 @@ class PERule(Rule):
         return '<PERule> template：' + str(self.template)
 
 
-class PECrawlSpider(Spider):
+class PECrawlSpider(CrawlSpider):
     # subclass should init rules before call super init
-    rules = ()
     start_rule = None
 
     def __init__(self, *a, **kw):
@@ -54,6 +52,10 @@ class PECrawlSpider(Spider):
         self._compile_rules()
 
     def start_requests(self):
+        """
+        TODO
+        :return:
+        """
         if self.start_rule:
             for start_url in self.start_urls:
                 r = Request(start_url, callback=self._response_downloaded)
@@ -65,20 +67,7 @@ class PECrawlSpider(Spider):
 
     def parse(self, response):
         # never reached now
-        return self._parse_response(response, self.parse_start_url, None, cb_kwargs={}, follow=True)
-
-    # @Override
-    def parse_start_url(self, response):
-        """
-        @Override
-        :param response:
-        :return:
-        """
-        return []
-
-    # @Override
-    def process_results(self, response, results):
-        return results
+        return self._parse_response_v2(response, self.parse_start_url, None, cb_kwargs={}, follow=True)
 
     def _build_request(self, rule_index, link):
         r = Request(url=link.url, callback=self._response_downloaded)
@@ -109,9 +98,9 @@ class PECrawlSpider(Spider):
             callback = None
         else:
             callback = rule.callback
-        return self._parse_response(response, parser, callback, rule.cb_kwargs, rule.follow)
+        return self._parse_response_v2(response, parser, callback, rule.cb_kwargs, rule.follow)
 
-    def _parse_response(self, response, parser, callback, cb_kwargs, follow=True):
+    def _parse_response_v2(self, response, parser, callback, cb_kwargs, follow=True):
         if parser:
             cb_res = parser(response, **cb_kwargs) or ()
             if callback:
@@ -140,17 +129,6 @@ class PECrawlSpider(Spider):
             rule.callback = get_method(rule.callback)
             rule.process_links = get_method(rule.process_links)
             rule.process_request = get_method(rule.process_request)
-
-    @classmethod
-    def from_crawler(cls, crawler, *args, **kwargs):
-        spider = super(PECrawlSpider, cls).from_crawler(crawler, *args, **kwargs)
-        spider._follow_links = crawler.settings.getbool(
-            'CRAWLSPIDER_FOLLOW_LINKS', True)
-        return spider
-
-    def set_crawler(self, crawler):
-        super(PECrawlSpider, self).set_crawler(crawler)
-        self._follow_links = crawler.settings.getbool('CRAWLSPIDER_FOLLOW_LINKS', True)
 
 
 class PESpider(RedisCrawlSpider):
@@ -197,25 +175,22 @@ class PESpider(RedisCrawlSpider):
         for request in self.next_requests():
             self.crawler.engine.crawl(request, spider=self)
 
-    def repush_request(self, request):
-        self.route_task(
-            "%s:%s:start_urls" % (request.meta.get('project', self.project), request.meta.get('spider', self.name)),
-            self.request_to_task(request))
-
     def get_project_name(self):
         return self.settings.get("BOT_NAME")
 
-    def route_task(self, queue_key, task_request):
+    @property
+    def router(self):
+        use_set = self.settings.getbool('REDIS_START_URLS_AS_SET', START_URLS_AS_SET)
+        return self.server.sadd if use_set else self.server.lpush
+
+    def route(self, queue, task_req):
         """
         push TaskRequest instance to redis queue
-        :param queue_key: redis key
-        :param task_request: TaskRequest instance
+        :param queue:
+        :param task_req:
         :return:
         """
-        self.info("push queue: %s， meta: %s" % (queue_key, task_request.meta))
-        use_set = self.settings.getbool('REDIS_START_URLS_AS_SET', defaults.START_URLS_AS_SET)
-        router = self.server.sadd if use_set else self.server.lpush
-        router(queue_key, json.dumps(task_request))
+        return self.router(queue, json.dumps(task_req))
 
     def add_task(self, task):
         """
@@ -223,22 +198,17 @@ class PESpider(RedisCrawlSpider):
         :param task:
         :return:
         """
-        self.server.lpush(self.redis_key, json.dumps(task))
+        self.route(self.redis_key, task)
 
-    def finish_clue(self, response, dw_count=0):
+    def reroute_request(self, request):
         """
-
-        :param response:
-        :param dw_count:
+        push a scrapy.http.Request instance, which maybe failed, back to queue
+        :param request:
+        :return:
         """
-        meta = response.meta
-        clue_id = meta.get('clue_id')
-        self.log("after yield, update clue_id: %s" % clue_id)
-        if clue_id:
-            clue = ClueModel.get_by_id(clue_id)  # may raise DoesNotExist
-            clue.success()
-            clue.dw_count = dw_count
-            clue.save()
+        self.route(
+            "%s:%s:start_urls" % (request.meta.get('project', self.project), request.meta.get('spider', self.name)),
+            self.request_to_task(request))
 
     def log(self, message, level=logging.DEBUG, **kw):
         """

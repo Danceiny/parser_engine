@@ -1,3 +1,5 @@
+# find and load scrapy item classes that user defined
+
 import six
 import traceback
 import warnings
