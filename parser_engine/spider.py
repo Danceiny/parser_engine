@@ -157,7 +157,10 @@ class PESpider(RedisCrawlSpider):
 
     def __init__(self, *args, **kwargs):
         super(PESpider, self).__init__(*args, **kwargs)
-        self.project = self.get_project_name()
+
+    @property
+    def project(self):
+        return self.get_project_name()
 
     def make_request_from_data(self, data):
         try:
