@@ -137,7 +137,7 @@ class Template(object):
                     return ["http://example.org"]
 
                 def parse(self, response):
-                    items = self._parse(response)
+                    items = self._parse_start_url(response)
                     if items:
                         for item in items:
                             yield item

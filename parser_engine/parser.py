@@ -44,7 +44,7 @@ class PEParser(object):
         for k, v in context.items():
             for item in items:
                 item[k] = v
-                item['created_time'] = int(time.time())
+                item['crawled_time'] = int(time.time())
         return self.transfer(items)
 
     def transfer(self, datas):
