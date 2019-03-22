@@ -18,7 +18,7 @@ def load_config_data():
                      port=db_config.get('PORT', 3306))
     elif settings.get('MYSQL_USER'):
         mysqldb.init(settings.get('MYSQL_DATABASE'), host=settings.get('MYSQL_HOST', '127.0.0.1'),
-                     user=settings['MYSQL_USER'], passwd=settings['MYSQL_PASSWORD'],
+                     user=settings.get('MYSQL_USER', 'root'), passwd=settings.get('MYSQL_PASSWORD'),
                      port=settings.get('MYSQL_PORT', 3306))
     db_table = settings.get('PARSER_ENGINE_CONFIG_TABLE')
     if db_table:
