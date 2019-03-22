@@ -35,7 +35,7 @@ class ClueModel(Model):
     url = CharField(verbose_name="爬取url", max_length=500, default='')
     from_clue_id = IntegerField(verbose_name="来源clue的id", default=0)
     req = CharField(verbose_name="请求体", max_length=2048, default='')
-    dw_count = IntegerField(verbose_name="打到dw数量", default=0)
+    dw_count = IntegerField(verbose_name="抓取的item数量", default=0)
 
     class Meta:
         table_name = 'clue'
