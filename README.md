@@ -6,7 +6,7 @@
     >`pip install git+https://github.com/Danceiny/parser_engine`
     
 - 安装稳定版：
-    >`pip install parser_engine`
+    >`pip install -U parser_engine`
     
 ### 原理
 - 解析器
@@ -45,6 +45,19 @@
 
 - PARSER_ENGINE_CONFIG_FILE 
     > 模板配置文件的位置。默认是`parser_engine.json`，与`scrapy.cfg`文件同级。
+- MYSQL
+    > MySQL配置信息，dict类型，包含以下字段：
+        - DATABASE
+        - USER
+        - PASSWORD
+        - PORT 默认3306
+        - HOST 默认127.0.0.1
+
+下面的字段在MYSQL配置缺失时生效：
+- MYSQL_USER
+- MYSQL_PASSWORD
+- MYSQL_PORT
+- MYSQL_DATABASE
 
 ### 模板参数
 模板配置文件，如`parser_engine.json`，其构成结构如下：
