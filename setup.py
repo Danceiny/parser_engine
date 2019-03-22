@@ -7,15 +7,18 @@ setup(
     version=parser_engine.__version__,
     author="huangzhen",
     author_email="huangzhen@baixing.com",
-    description='template parser engine for scrapy',
+    description='template-driven parser engine for scrapy',
     long_description=open("README.md").read(),
     license="MIT",
     url="https://gitlab.baixing.cn/spider/parser_engine",
     packages=find_packages(),
     install_requires=[
         "six",
+        "simplejson",
         "jsonpath-rw",
-        "scrapy"
+        "scrapy",
+        "scrapy_redis",
+        "peewee"
     ],
     include_package_data=True,
     classifiers=[
