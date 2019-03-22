@@ -1,12 +1,18 @@
 import copy
 import six
+import simplejson as json
+import logging
 
+import scrapy
 from scrapy.http import Request, HtmlResponse
 from scrapy.utils.spider import iterate_spider_output
 from scrapy.spiders import Spider, Rule, CrawlSpider
 from scrapy.spiders.crawl import identity
 from scrapy.linkextractors import LinkExtractor
+from scrapy_redis.spiders import RedisCrawlSpider
+from scrapy_redis import defaults
 
+from .request import TaskRequest
 from .parser import PEParser
 from .template import PETemplate
 
@@ -145,3 +151,89 @@ class PECrawlSpider(Spider):
     def set_crawler(self, crawler):
         super(PECrawlSpider, self).set_crawler(crawler)
         self._follow_links = crawler.settings.getbool('CRAWLSPIDER_FOLLOW_LINKS', True)
+
+
+class PESpider(RedisCrawlSpider):
+
+    def __init__(self, *args, **kwargs):
+        super(PESpider, self).__init__(*args, **kwargs)
+        self.project = self.get_project_name()
+
+    def make_request_from_data(self, data):
+        try:
+            scheduled = TaskRequest(
+                **json.loads(data.decode(self.redis_encoding))
+            )
+        except Exception as e:
+            self.debug("parse request failed, exception:【%s】 data: %s" % (e, data.decode(self.redis_encoding)))
+        else:
+            return self.task_to_request(scheduled)
+
+    @staticmethod
+    def task_to_request(scheduled):
+        return scrapy.Request(
+            url=scheduled.url,
+            method=scheduled.method,
+            body=scheduled.body,
+            cookies=scheduled.cookies,
+            headers=scheduled.headers,
+            meta=scheduled.meta,
+            dont_filter=True
+        )
+
+    @staticmethod
+    def request_to_task(request):
+        request.headers[b'Cookie'] = None
+        return TaskRequest(url=request.url, method=request.method,
+                           body=request.body, headers=request.headers, cookies=None, meta=request.meta)
+
+    def schedule_next_requests(self):
+        for request in self.next_requests():
+            self.crawler.engine.crawl(request, spider=self)
+
+    def repush_request(self, request):
+        self.route_task(
+            "%s:%s:start_urls" % (request.meta.get('project', self.project), request.meta.get('spider', self.name)),
+            self.request_to_task(request))
+
+    def get_project_name(self):
+        return self.settings.get("BOT_NAME")
+
+    def route_task(self, queue_key, task_request):
+        """
+        push TaskRequest instance to redis queue
+        :param queue_key: redis key
+        :param task_request: TaskRequest instance
+        :return:
+        """
+        self.info("push queue: %s， meta: %s" % (queue_key, task_request.meta))
+        use_set = self.settings.getbool('REDIS_START_URLS_AS_SET', defaults.START_URLS_AS_SET)
+        router = self.server.sadd if use_set else self.server.lpush
+        router(queue_key, json.dumps(task_request))
+
+    def add_task(self, task):
+        """
+        push TaskRequest instance to redis queue of this spider
+        :param task:
+        :return:
+        """
+        self.server.lpush(self.redis_key, json.dumps(task))
+
+    def log(self, message, level=logging.DEBUG, **kw):
+        """
+        TODO
+        :param message:
+        :param level:
+        :param kw:
+        :return:
+        """
+        super().log(message, level, **kw)
+
+    def info(self, message, **kw):
+        self.log(message, logging.INFO, **kw)
+
+    def debug(self, message, **kw):
+        self.log(message, logging.DEBUG, **kw)
+
+    def error(self, message, **kw):
+        self.log(message, logging.ERROR, **kw)

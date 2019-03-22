@@ -1,6 +1,4 @@
-from six.moves.urllib.parse import urljoin, urlencode
 from scrapy.http.request import Request
-from scrapy.utils.python import to_bytes, is_listlike
 import json
 from scrapy.http.request.form import FormRequest
 
@@ -21,11 +19,25 @@ class JsonRequest(Request):
                 self._set_body(data)
 
 
-def _urlencode(seq, enc):
-    values = [(to_bytes(k, enc), to_bytes(v, enc))
-              for k, vs in seq
-              for v in (vs if is_listlike(vs) else [vs])]
-    return urlencode(values, doseq=True)
+class TaskRequest(dict):
+    def __init__(self, url=None, method='GET', body=None, headers=None, cookies=None, meta=None, **kwargs):
+        super().__init__()
+        if headers is None:
+            headers = {}
+        if meta is None:
+            meta = kwargs
+        self.url = url
+        self.method = method
+        self.body = body
+        self.headers = headers
+        self.cookies = cookies
+        self.meta = meta
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
+    def __getattr__(self, item):
+        return self.get(item)
 
 
 def make_request(url, method='GET', formdata=None, jsondata=None, headers=None, **kwargs):
