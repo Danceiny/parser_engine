@@ -3,10 +3,9 @@ import six
 import simplejson as json
 import logging
 
-import scrapy
 from scrapy.http import Request, HtmlResponse
 from scrapy.utils.spider import iterate_spider_output
-from scrapy.spiders import Spider, Rule, CrawlSpider
+from scrapy.spiders import Spider, Rule
 from scrapy.spiders.crawl import identity
 from scrapy.linkextractors import LinkExtractor
 from scrapy_redis.spiders import RedisCrawlSpider
@@ -15,6 +14,7 @@ from scrapy_redis import defaults
 from .request import TaskRequest
 from .parser import PEParser
 from .template import PETemplate
+from .clue import ClueModel
 
 default_link_extractor = LinkExtractor()
 
@@ -157,10 +157,13 @@ class PESpider(RedisCrawlSpider):
 
     def __init__(self, *args, **kwargs):
         super(PESpider, self).__init__(*args, **kwargs)
+        self._project = ''
 
     @property
     def project(self):
-        return self.get_project_name()
+        if not self._project:
+            self._project = self.get_project_name()
+        return self._project
 
     def make_request_from_data(self, data):
         try:
@@ -174,7 +177,7 @@ class PESpider(RedisCrawlSpider):
 
     @staticmethod
     def task_to_request(scheduled):
-        return scrapy.Request(
+        return Request(
             url=scheduled.url,
             method=scheduled.method,
             body=scheduled.body,
@@ -221,6 +224,21 @@ class PESpider(RedisCrawlSpider):
         :return:
         """
         self.server.lpush(self.redis_key, json.dumps(task))
+
+    def finish_clue(self, response, dw_count=0):
+        """
+
+        :param response:
+        :param dw_count:
+        """
+        meta = response.meta
+        clue_id = meta.get('clue_id')
+        self.log("after yield, update clue_id: %s" % clue_id)
+        if clue_id:
+            clue = ClueModel.get_by_id(clue_id)  # may raise DoesNotExist
+            clue.success()
+            clue.dw_count = dw_count
+            clue.save()
 
     def log(self, message, level=logging.DEBUG, **kw):
         """

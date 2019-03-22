@@ -1,10 +1,25 @@
 import pkg_resources
-from .utils import *
 import logging
+from peewee import MySQLDatabase
+
+from .utils import *
+
+CONFIG_DATA = None
+
+mysqldb = MySQLDatabase(None)
 
 
 def load_config_data():
     settings = load_scrapy_settings()
+    db_config = settings.getdict('MYSQL')
+    if db_config:
+        mysqldb.init(db_config['DATABASE'], host=db_config.get('HOST', '127.0.0.1'),
+                     user=db_config['USER'], passwd=db_config['PASSWORD'],
+                     port=db_config.get('PORT', 3306))
+    elif settings.get('MYSQL_USER'):
+        mysqldb.init(settings.get('MYSQL_DATABASE'), host=db_config.get('MYSQL_HOST', '127.0.0.1'),
+                     user=db_config['MYSQL_USER'], passwd=db_config['MYSQL_PASSWORD'],
+                     port=db_config.get('MYSQL_PORT', 3306))
     db_table = settings.get('PARSER_ENGINE_CONFIG_TABLE')
     if db_table:
         # todo
@@ -20,9 +35,6 @@ def load_config_data():
             config_path = config_path1
         with open(config_path, mode='rb') as f:
             return json.loads(f.read())
-
-
-CONFIG_DATA = None
 
 
 def init_logger():

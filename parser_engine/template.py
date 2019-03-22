@@ -3,8 +3,10 @@
 import json
 import copy
 import six
-from .utils import is_string
+
 from scrapy.linkextractors import LinkExtractor
+
+from .utils import is_string
 from . import log
 
 

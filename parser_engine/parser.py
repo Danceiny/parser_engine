@@ -1,7 +1,9 @@
-from scrapy.selector import Selector, SelectorList
 import json
 import time
+
 import jsonpath_rw as jsonpath
+from scrapy.selector import Selector
+
 from . import utils
 from .itemclassloader import ItemClassLoader
 from .template import PETemplate

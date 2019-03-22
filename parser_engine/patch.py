@@ -2,12 +2,13 @@ import six
 from scrapy.item import DictItem
 from scrapy.utils.misc import load_object
 from scrapy_redis import connection, defaults
+
 from .log import debug
 
 
-############################
-# scrapy item field静默     #
-############################
+############################################
+# scrapy item set field without exception  #
+############################################
 def __setitem__(self, key, value):
     if key in self.fields:
         self._values[key] = value
@@ -18,9 +19,9 @@ def __setitem__(self, key, value):
 
 DictItem.__setitem__ = __setitem__
 
-############################
-# scrapy_redis 哨兵连接     #
-############################
+#################################
+# scrapy_redis sentinel mode    #
+#################################
 SETTINGS_PARAMS_MAP = {
     'REDIS_URL': 'url',
     'REDIS_HOST': 'host',

@@ -3,7 +3,7 @@ import six
 import os
 import json
 from scrapy.utils import project
-from scrapy.http import HtmlResponse, TextResponse
+from scrapy.http import HtmlResponse
 
 
 class classproperty(object):
