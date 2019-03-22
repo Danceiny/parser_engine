@@ -13,8 +13,8 @@ def load_config_data():
     settings = load_scrapy_settings()
     db_config = settings.getdict('MYSQL')
     if db_config:
-        mysqldb.init(db_config['DATABASE'], host=db_config.get('HOST', '127.0.0.1'),
-                     user=db_config['USER'], passwd=db_config['PASSWORD'],
+        mysqldb.init(db_config.get('DATABASE'), host=db_config.get('HOST', '127.0.0.1'),
+                     user=db_config.get('USER', 'root'), passwd=db_config.get('PASSWORD'),
                      port=db_config.get('PORT', 3306))
     elif settings.get('MYSQL_USER'):
         mysqldb.init(settings.get('MYSQL_DATABASE'), host=settings.get('MYSQL_HOST', '127.0.0.1'),
