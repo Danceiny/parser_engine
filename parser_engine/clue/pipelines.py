@@ -21,5 +21,5 @@ class CluePipeline(object):
     def process_item(self, item, spider):
         if isinstance(item, ClueItem):
             spider.info('CluePipeline route clue [clue_id] %s to queue' % item['req'].meta.get('clue_id'))
-            spider.route_clue('%s:%s:start_urls' % (item['project'], item['spider']), item['req'])
+            spider.route('%s:%s:start_urls' % (item['project'], item['spider']), item['req'])
         return item
