@@ -1,10 +1,11 @@
 from __future__ import print_function
 from setuptools import setup, find_packages
-import parser_engine
 
+with open('VERSION') as f:
+    __version__ = f.read()
 setup(
     name="parser_engine",
-    version=parser_engine.__version__,
+    version=__version__,
     author="huangzhen",
     author_email="huangzhen@baixing.com",
     description='template-driven parser engine for scrapy',

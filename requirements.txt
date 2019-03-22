@@ -1,3 +1,6 @@
 six
+simplejson
 jsonpath-rw # jsonpath-ng
 scrapy
+peewee
+scrapy_redis
