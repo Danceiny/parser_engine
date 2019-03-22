@@ -20,11 +20,18 @@
 - 如果提取规则较为复杂，建议直接使用xpath和css参数，因为PE的参数编译可能存在问题。
 - 如果对性能有比较强的需求，不建议使用。
 
+### 特性
+- [*] 支持表格、列表等形式的批量解析
+    >通过在模板中定义一个父节点，从html页面中的表格、列表等组件中，批量抓取多个同类item
+    
+    >用法示例：使用`{"parent": {}, "fields": []}`这样的配置，将首先查找匹配`parent`的节点，然后遍历其每个子节点，对每个子节点应用`fields`规则，生成一个item。
+    
+- [*] Clue Mechanism
+    > 基于scrapy_redis的线索机制，可持久化（目前支持mysql）线索，方便追踪。
+    
 ### 待做清单
 - 功能
-    - [ ] 通过定义一个模板，从html页面中的表格等组件中，批量抓取多个同类item
-        
-        >用法示例：使用`{"parent": {}, "fields": []}`这样的配置，将首先查找匹配`parent`的节点，然后遍历其每个子节点，对每个子节点应用`fields`规则，生成一个item。
+
 - 优化
     - [ ] 支持直接在`Item`的类定义中定义模板
         >用法示例：原模板的`itemname`参数通过注解传参，其他的模板参数定义在`Item`类中，如下所示。
@@ -84,7 +91,11 @@
 ### TemplateAnnotation参数说明
 TemplateAnnotation注解中传进来的参数，除了下面列出的，其他的参数都会被塞到返回值中（当然，如果通过定义`itemname`，实例化item的时候会静默抛弃那些不属于item的值）。
 
-- start_url_tpl: 
+- start_url_tpl: 模板的数组，或者模板id的数组。
+    >对应于start_urls的模板，会生成一个`_parse_start_url`方法绑定到spider类上，该方法有两个参数（不包括self）：
+    - response 
+    - tpl_index_or_id，默认是None
+    
 - tpls: 模板的数组，或者模板id的数组
 
 其它约定：
