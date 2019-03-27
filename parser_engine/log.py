@@ -20,3 +20,8 @@ def debug(data, *msgs, **kwargs):
 def warning(data, *msgs, **kwargs):
     logging.warning("%s %s %s", str(data), ' '.join([str(msg) for msg in msgs]),
                     pretty_dict_str(kwargs))
+
+
+def error(data, *msgs, **kwargs):
+    logging.error("%s %s %s", str(data), ' '.join([str(msg) for msg in msgs]),
+                  pretty_dict_str(kwargs))
