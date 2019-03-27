@@ -1,6 +1,7 @@
 from scrapy.http.request import Request
-import json
+import simplejson as json
 from scrapy.http.request.form import FormRequest
+from six.moves.urllib.parse import urlencode
 
 
 class JsonRequest(Request):
@@ -21,9 +22,27 @@ class JsonRequest(Request):
 
 class TaskRequest(dict):
     def __init__(self, url=None, method='GET', body=None, headers=None, cookies=None, meta=None, **kwargs):
-        super().__init__()
         if headers is None:
             headers = {}
+        if not body:
+            js = kwargs.pop('json', None)
+            if js:
+                if isinstance(js, dict):
+                    body = json.dumps(js)
+                else:
+                    body = js
+                if not headers.get('Content-Type'):
+                    headers['Content-Type'] = 'application/json'
+            else:
+                form = kwargs.pop('form', None)
+                if form:
+                    if not headers.get('Content-Type'):
+                        headers['Content-Type'] = 'application/x-www-form-urlencoded'
+                    if isinstance(form, dict):
+                        body = urlencode(form)
+                    else:
+                        body = form
+        super().__init__()
         if meta is None:
             meta = kwargs
         self.url = url
