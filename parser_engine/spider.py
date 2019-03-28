@@ -237,3 +237,6 @@ class PESpider(RedisCrawlSpider):
 
     def error(self, message, **kw):
         self.log(message, logging.ERROR, **kw)
+
+    def warning(self, message, **kw):
+        self.log(message, logging.WARNING, **kw)

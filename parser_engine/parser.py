@@ -9,7 +9,7 @@ from scrapy.selector import Selector
 from . import utils
 from .itemclassloader import ItemClassLoader
 from .template import PETemplate
-from .log import info, warning, error
+from .log import info, warning, error, debug
 
 
 def parse_with_tpl(response, tpl, **context):
@@ -131,39 +131,43 @@ class PEParser(object):
         else:
             item = {}
             for field in self.tpl.fields:
-                try:
-                    item[field.key] = self.cast([match.value for match in jsonpath.parse(field.json_path).find(data)],
-                                                field.value_type)
-                except Exception as e:
-                    warning(e)
+                value = None
+                if field.json_key:
+                    value = data.get(field.json_key)
+                elif field.json_path:
+                    value = [match.value for match in jsonpath.parse(field.json_path).find(data)]
+                break_flag = self._set_item_value(item, value, field)
+                if break_flag:
+                    return tuple()
             return item,  # Attention: return iterable tuple
 
     def _parse_text_node_list(self, root):
         items = []
         for d in root:
-            item = {}
-            break_flag = False
-            if isinstance(d, dict):
-                if self.tpl.extract_keys:
-                    for key in self.tpl.extract_keys:
-                        item[key] = d.get(key)
-                elif self.tpl.extract_keys_map:
-                    for json_key, key in self.tpl.extract_keys_map.items():
-                        item[key] = d.get(json_key)
-            else:
-                for field in self.tpl.fields:
-                    value = None
-                    if field.json_key:
-                        value = d.get(field.json_key)
-                    elif field.json_path:
-                        value = [match.value for match in jsonpath.parse(field.json_path).find(d)]
-                    break_flag = self._set_item_value(item, value, field)
-                    if break_flag:
-                        break
-                    item[field.key] = value
-            if not break_flag and item:
+            item = self._parse_text_item(d)
+            if item:
                 items.append(item)
         return items
+
+    def _parse_text_item(self, node):
+        item = {}
+        if self.tpl.extract_keys:
+            for key in self.tpl.extract_keys:
+                item[key] = node.get(key)
+        elif self.tpl.extract_keys_map:
+            for json_key, key in self.tpl.extract_keys_map.items():
+                item[key] = node.get(json_key)
+        else:
+            for field in self.tpl.fields:
+                value = None
+                if field.json_key:
+                    value = node.get(field.json_key)
+                elif field.json_path:
+                    value = [match.value for match in jsonpath.parse(field.json_path).find(node)]
+                break_flag = self._set_item_value(item, value, field)
+                if break_flag:
+                    return
+        return item
 
     def _set_item_value(self, item, value, field):
         """
@@ -178,7 +182,14 @@ class PEParser(object):
             value = self.cast(value, field.value_type)
         # FIXME: more robust required check
         if field.required and not value:
+            debug("%s required but get false value (shown as json): %s" % (field.key, json.dumps(value)))
             return True
+        # do value map, e.g. map 1 to male, and 0 to female
+        if field.mapper:
+            value = field.mapper.get(value)
+        # join list to string
+        elif field.join and isinstance(value, list):
+            value = field.join.join((str(v) for v in value))
         item[field.key] = value
 
     @staticmethod

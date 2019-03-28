@@ -170,7 +170,6 @@ class Template(object):
 
         def _deco(spcls):
             tpls = kw.pop('tpls', None)
-            kw['business'] = spcls.name
             cls.src = kw.pop('src', None)
             start_url_generator_name = kw.pop('start_urls_generator', None)
             if start_url_generator_name:
@@ -209,7 +208,7 @@ class Template(object):
 
             if tpls and issubclass(spcls, CrawlSpider):
                 spcls.rules = cls.get_rules(tpls, **kw)
-                if not cls.src and customize_link_extractor:
+                if not cls.src and not customize_link_extractor:
                     # do patch
                     spcls._compile_rules = _compile_rules_patch
             else:

@@ -28,12 +28,12 @@ class ClueModel(Model):
     @staticmethod
     def from_item(item):
         model = ClueModel()
-        model.url = item.get('url')
-        model.name = item.get('business') or item.get('spider')
-        model.channel = item.get('channel') or item.get('project')
+        model.url = item.get('url', item.get('req', {}).get('url'))
+        model.name = item.get('business') or item.get('spider') or ''
+        model.channel = item.get('channel') or item.get('project') or ''
         model.created_time = int(time.time())
         model.modified_time = int(time.time())
-        model.from_clue_id = item.get('from_clue_id')
+        model.from_clue_id = item.get('from_clue_id', 0)
         model.req = json.dumps(item.get('req'))
         return model
 

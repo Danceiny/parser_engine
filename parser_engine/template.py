@@ -52,23 +52,22 @@ class PETemplate(object):
 
 
 # {
-#   dom_id: string // document.getElementById
 #   css: css query in scrapy Selector.css
 #   xpath: xpath query in scrapy Selector.xpath
 #   tags: [] // like div, a,  etc. e.g: [div,a] => div->a
 #   classes: [] // css class match, e.g: classes=["classA", "classB"] => class="classA classB"
 #   attributes: string // xpath [{attributes}]
 #   position: int
-#
 #   key: string // value's key
 #   value_type: A_tuple // for simple type cast
 #   regexp: string // regular expression must be matched, for scrapy.Selector.re use
 #   attr_name: string // attributes name, e.g: "href", "src"
-#
-#   parent: map, // with some k-v to find parent node
+#   parent: map, // contains one of xpath/css/json_key/json_path, should return an iterable list after parsing
 #   json_key  // to get "json_value" in {"json_key":"json_value"}
 #   json_path // to get "json_value" in {"json_key":"json_value"} using jsonpath expression
+#   mapper map // for mapping raw value to another value
 # }
+
 class PEField(dict):
     def __init__(self, key, **kwargs):
         kwargs['key'] = key
