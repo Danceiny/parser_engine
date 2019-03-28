@@ -10,6 +10,7 @@ setup(
     author_email="huangzhen@baixing.com",
     description='template-driven parser engine for scrapy',
     long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     license="MIT",
     url="https://gitlab.baixing.cn/spider/parser_engine",
     packages=find_packages(),
