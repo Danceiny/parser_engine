@@ -137,6 +137,15 @@ class PESpider(RedisCrawlSpider):
         super(PESpider, self).__init__(*args, **kwargs)
         self._project = ''
 
+    def _parse_start_url(self, response, tpl_index_or_id=None):
+        """
+        method patched at runtime if start_url_tpl_id/start_url_tpl param given in @TemplateAnnotation
+        :param response:
+        :param tpl_index_or_id:
+        :return:
+        """
+        pass
+
     @property
     def project(self):
         if not self._project:
