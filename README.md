@@ -16,6 +16,10 @@
 - 安装稳定版：
     >`pip install -U parser_engine`
     
+### 示例
+
+请参考：[examples](./examples)。
+
 ### 原理
 - 解析器
     >PE向调用方提供一套简单、易懂的参数，实际会将其`编译`成较为复杂的xpath表达式，再借助scrapy封装的解析器将所需内容提取出来。
@@ -41,8 +45,6 @@
     >一个简单的需求场景：API返回的性别字段是0和1，但是需要将其转换成"男"和"女"。
     
 ### 待做清单
-- 功能
-
 - 优化
     - [ ] 支持直接在`Item`的类定义中定义模板
         >用法示例：原模板的`itemname`参数通过注解传参，其他的模板参数定义在`Item`类中，如下所示。
@@ -123,9 +125,6 @@ TemplateAnnotation注解中传进来的参数，除了下面列出的，其他�
     - tpl_index_or_id，默认是None
     
 - tpls: 模板的数组，或者模板id的数组
-
-其它约定：
-- Spider类的`name`类变量，会被翻译成`business`赋值给item。
 
 具体请参考[decorator.py](./parser_engine/decorator.py)中的注释及源代码。
 

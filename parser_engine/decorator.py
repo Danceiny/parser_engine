@@ -4,7 +4,7 @@ from scrapy.spiders import Rule, CrawlSpider
 from scrapy.linkextractors import LinkExtractor
 
 from .template import PETemplate
-from .parser import parse_with_tpl
+from .parser import parse_with_tpl, PEParser
 from .utils import is_sequence, is_string
 from .singleton import Singleton
 from .config import init_config, get_config_data
@@ -19,13 +19,19 @@ def _compile_rules_patch(self):
             return getattr(self, method, None)
 
     self._rules = [copy.copy(r) for r in self.rules]
+    global c
     for rule in self._rules:
         # diff start
+        # support PECrawlSpider: use template driven callback processor
+        if getattr(rule, "template", None):
+            rule.parser = get_method(PEParser(rule.template))
+            continue
         tpl_id = rule.cb_kwargs.pop('tpl_id', None)
         if tpl_id:
             tpl = PETemplate.from_json(find_by_id(tpl_id))
             rule.link_extractor = tpl.get_link_extractor()
             rule.callback = parse_with_tpl
+            rule.cb_kwargs['tpl'] = tpl
         # diff end
         rule.process_links = get_method(rule.process_links)
         rule.process_request = get_method(rule.process_request)
@@ -212,18 +218,8 @@ class Template(object):
                     # do patch
                     spcls._compile_rules = _compile_rules_patch
             else:
-                pass
                 # FIXME: scrapy.Spider && scrapy_redis.spiders.RedisSpider case
-                # def parse_response_patch(self, response):
-                #     return self.start_rule.callback(response)
-                #
-                # spcls.parse_response = classmethod(parse_response_patch)
-                #
-                # def start_requests(self):
-                #     for url in self.start_urls:
-                #         yield Request(url, callback=spcls.parse_response)
-                #
-                # spcls.start_requests = classmethod(start_requests)
+                pass
             return spcls
 
         return _deco

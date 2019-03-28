@@ -6,7 +6,7 @@
       "fields": [
         {
           "dom_id": null,
-          "_css": null,
+          "css": null,
           "xpath": null,
           "tags": [
             "h3"

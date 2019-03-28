@@ -1,0 +1,5 @@
+scrapy_redis
+scrapy
+parser_engine
+cpca
+peewee

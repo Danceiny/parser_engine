@@ -4,22 +4,6 @@ from scrapy.http.request.form import FormRequest
 from six.moves.urllib.parse import urlencode
 
 
-class JsonRequest(Request):
-
-    def __init__(self, *args, **kwargs):
-        jsondata = kwargs.pop('jsondata', None)
-        if jsondata and kwargs.get('method') is None:
-            kwargs['method'] = 'POST'
-
-        super(JsonRequest, self).__init__(*args, **kwargs)
-
-        if jsondata:
-            data = json.dumps(jsondata) if isinstance(jsondata, dict) else jsondata
-            if self.method == 'POST':
-                self.headers.setdefault(b'Content-Type', b'application/json')
-                self._set_body(data)
-
-
 class TaskRequest(dict):
     def __init__(self, url=None, method='GET', body=None, headers=None, cookies=None, meta=None, **kwargs):
         if headers is None:
@@ -57,6 +41,22 @@ class TaskRequest(dict):
 
     def __getattr__(self, item):
         return self.get(item)
+
+
+class JsonRequest(Request):
+
+    def __init__(self, *args, **kwargs):
+        jsondata = kwargs.pop('jsondata', None)
+        if jsondata and kwargs.get('method') is None:
+            kwargs['method'] = 'POST'
+
+        super(JsonRequest, self).__init__(*args, **kwargs)
+
+        if jsondata:
+            data = json.dumps(jsondata) if isinstance(jsondata, dict) else jsondata
+            if self.method == 'POST':
+                self.headers.setdefault(b'Content-Type', b'application/json')
+                self._set_body(data)
 
 
 def make_request(url, method='GET', formdata=None, jsondata=None, headers=None, **kwargs):

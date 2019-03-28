@@ -4,9 +4,9 @@ from parser_engine import TemplateAnnotation, Template
 from scrapy.spiders import CrawlSpider
 
 
-@TemplateAnnotation(tpls=("demo", "json-api-demo"), channel_id="cannot.cc", channel="Danceiny")
+@TemplateAnnotation(tpls=("demo", "dict-api-demo"), channel_id="cannot.cc", channel="Danceiny")
 class DemoSpider(PECrawlSpider):
-    name = "demo"
+    name = "demo1"
 
     start_urls = [
         "http://github.cannot.cc/baixing-helper/"
@@ -44,12 +44,8 @@ class DemoSpider3(PECrawlSpider):
 
     name = "demo3"
     start_urls = [
-        "http://172.31.1.4:30815/api/dict/area/0?childrenDepth=1",
-        # "https://restapi.amap.com/v3/place/text?citylimit=true&output=json&offset=20&city=shanghai&page=1&key=0f1ef779f17ac1f0541bef5452eb7570&keywords=%E6%95%99%E8%82%B2"
+        "https://restapi.amap.com/v3/place/text?citylimit=true&output=json&offset=20&city=shanghai&page=1&key=0f1ef779f17ac1f0541bef5452eb7570&keywords=%E6%95%99%E8%82%B2"
     ]
-
-    def callback(self, data):
-        print("准备持久化", data)
 
     def process_results(self, response, results):
         print("处理结果", results)
