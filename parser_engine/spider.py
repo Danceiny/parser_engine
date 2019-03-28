@@ -44,12 +44,14 @@ class PERule(Rule):
 
 
 class PECrawlSpider(CrawlSpider):
+    """
+    start_urls driven
+    """
     # subclass should init rules before call super init
     start_rule = None
 
     def __init__(self, *a, **kw):
         super(PECrawlSpider, self).__init__(*a, **kw)
-        self._compile_rules()
 
     def start_requests(self):
         """
@@ -104,7 +106,7 @@ class PECrawlSpider(CrawlSpider):
         if parser:
             cb_res = parser(response, **cb_kwargs) or ()
             if callback:
-                cb_res = callback(response, **cb_kwargs) or ()
+                cb_res = callback(response, cb_res=cb_res, **cb_kwargs) or ()
             cb_res = self.process_results(response, cb_res)
             for requests_or_item in iterate_spider_output(cb_res):
                 yield requests_or_item
@@ -132,6 +134,9 @@ class PECrawlSpider(CrawlSpider):
 
 
 class PESpider(RedisCrawlSpider):
+    """
+    redis driven
+    """
 
     def __init__(self, *args, **kwargs):
         super(PESpider, self).__init__(*args, **kwargs)

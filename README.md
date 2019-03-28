@@ -16,6 +16,159 @@
 - 安装稳定版：
     >`pip install -U parser_engine`
     
+### 示例
+- 极简版，使用`CrawlSpider`的rules机制。
+```python
+from parser_engine import TemplateAnnotation
+@TemplateAnnotation(tpls="demo")
+class DemoSpider4(CrawlSpider):
+    name = "demo4"
+    start_urls = [
+        "http://github.cannot.cc/baixing-helper"
+    ]
+```
+
+- 使用scrapy_redis，解析start_urls的响应。
+```python
+from parser_engine import TemplateAnnotation
+from parser_engine.clue.spider import ClueSpider
+@TemplateAnnotation(start_url_tpl=({
+    "name": "zhongguozhongqi_xiaoshouwangluo",
+    "itemname": "HuocheDealerItem",
+    "parent": {
+        "xpath": "//tr[@class=\"bgcolor2\"]"
+    },
+    "fields": [
+        {
+            "key": "area",
+            "xpath": "td[1]/text()",
+            "value_type": "stripped_string"
+        }, {
+            "key": "leads_name",
+            "xpath": "td[2]/text()",
+            "value_type": "stripped_string"
+        }, {
+            "key": "address",
+            "xpath": "td[3]/text()",
+            "value_type": "stripped_string"
+        }, {
+            "key": "phone",
+            "xpath": "td[5]/text()",
+            "value_type": "stripped_string"
+        }
+    ]
+}), channel='zhongguozhongqi', leads_src='中国重汽')
+class ZhongguozhongqiSpider(ClueSpider):
+    name = 'zhongguozhongqi'
+    def parse(self, response):
+        items = self._parse_start_url(response)
+        for item in items:
+            phone = item.get('phone')
+            if phone:
+                item['phone'] = phone.replace('、', ',')
+            yield item
+        self.finish_clue(response, len(items))
+```
+
+- 使用scrapy_redis，灵活运用多种PE特性。
+```python
+from parser_engine.clue.spider import ClueSpider
+from parser_engine import TemplateAnnotation
+from parser_engine.clue.items import ClueItem
+from parser_engine.request import TaskRequest
+from scrapy import Request
+@TemplateAnnotation(start_url_tpl=({
+                                       "name": "youka_shop_listing_api",
+                                       "parent": {
+                                           "json_key": "data",
+                                       },
+                                       "fields": [{
+                                           "key": "totalPage",
+                                           "json_key": "totalPage",
+
+                                       }, {
+                                           "key": "ids",
+                                           "json_path": "dataList[*].id"
+                                       }]
+                                   },),
+    tpls=({
+        "name": "youka_shop_detail_api",
+        "itemname": "HuocheDealerItem",
+        "parent": {
+            "json_key": "data",
+        },
+        "fields": [{
+            "key": "company_type",
+            "json_key": "category",
+            "mapper": {
+                1: "二手车直营店",
+                2: "4S店"
+            }
+        }, {
+            "key": "dealer_id",
+            "json_key": "id",
+            "required": 1,
+        }, {
+            "key": "leads_name",
+            "json_key": "shopName",
+        }, {
+            "key": "area",
+            "json_path": "districtDto.districtName",
+            "value_type": "singleton"
+        }, {
+            "key": "city",
+            "json_path": "cityDto.cityName",
+            "value_type": "singleton"
+        }, {
+            "key": "service_phone",
+            "default_value": "",
+        }, {
+            "key": "wechat",
+            "json_key": "wechat",
+        },  {
+            "key": "tags",
+            "json_key": "tags",
+            "join": ","
+        }]
+    }), channel='youka', leads_src='优卡')
+class YoukaSpider(ClueSpider):
+    name = 'youka'
+    custom_settings = {
+        'CONCURRENT_REQUESTS': 2,
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 1
+    }
+    def parse(self, response):
+        items = self._parse_start_url(response)
+        meta = response.meta
+        clue_id = meta.get('clue_id')
+        from_url = response.request.url
+        if meta.get('open_pages'):
+            total_page = items[0]['totalPage']
+            import re
+            current_page = int(re.findall('page=(\\d+)', from_url)[0])
+            for i in range(1, total_page + 1):
+                if current_page == i:
+                    continue
+                url = "http://www.china2cv.com/truck-foton-web/api/shop/v1/getShopList?page=%d&pageSize=10" % i
+                yield ClueItem({"project": "huoche", "spider": self.name, "req": TaskRequest(
+                    url=url,
+                    meta={"from_clue_id": clue_id}
+                )})
+        for item in items:
+            for id in item['ids']:
+                r = Request(url="http://www.china2cv.com/truck-foton-web/api/shop/v1/getShopInfo?shopId=%d" % int(id),
+                            callback=self._response_downloaded)
+                r.meta.update(rule=0, from_clue_id=clue_id)
+                yield r
+
+    def process_results(self, response, results):
+        for item in results:
+            item['url'] = 'http://www.china2cv.com/storeDetail.html?typess=1&shopId=' + str(item['dealer_id'])
+        return results
+```
+
+更多请参考：[examples](./examples)。
+
 ### 原理
 - 解析器
     >PE向调用方提供一套简单、易懂的参数，实际会将其`编译`成较为复杂的xpath表达式，再借助scrapy封装的解析器将所需内容提取出来。
@@ -41,8 +194,6 @@
     >一个简单的需求场景：API返回的性别字段是0和1，但是需要将其转换成"男"和"女"。
     
 ### 待做清单
-- 功能
-
 - 优化
     - [ ] 支持直接在`Item`的类定义中定义模板
         >用法示例：原模板的`itemname`参数通过注解传参，其他的模板参数定义在`Item`类中，如下所示。
@@ -123,9 +274,6 @@ TemplateAnnotation注解中传进来的参数，除了下面列出的，其他�
     - tpl_index_or_id，默认是None
     
 - tpls: 模板的数组，或者模板id的数组
-
-其它约定：
-- Spider类的`name`类变量，会被翻译成`business`赋值给item。
 
 具体请参考[decorator.py](./parser_engine/decorator.py)中的注释及源代码。
 
