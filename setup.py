@@ -20,6 +20,7 @@ setup(
         "jsonpath-rw",
         "scrapy",
         "scrapy_redis",
+        "requests",
         "peewee"
     ],
     include_package_data=True,
