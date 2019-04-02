@@ -37,6 +37,9 @@ class PEParser(object):
         :param response: instance of scrapy.http.Response
         :return: instance of scrapy.Item's subclass
         """
+        if not response.body:
+            warning("response.body is none")
+            return tuple()
         if utils.is_json_response(response):
             items = self.parse_text(response)
         else:
