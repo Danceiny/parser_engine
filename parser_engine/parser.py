@@ -79,11 +79,12 @@ class PEParser(object):
             parent_xpath = parent.get('xpath')
             if parent_xpath:
                 root = root.xpath(parent_xpath)
-            parent_css = parent.get('css')
-            if not parent_css:
-                error('parse html response failed, parent node no xpath/css')
-                return tuple()
-            root = root.css(parent_css)
+            else:
+                parent_css = parent.get('css')
+                if not parent_css:
+                    error('parse html response failed, parent node no xpath/css')
+                    return tuple()
+                root = root.css(parent_css)
         if utils.is_sequence(root):
             return self._parse_html_node_list(root)
         else:
