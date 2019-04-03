@@ -2,7 +2,7 @@ from scrapy.downloadermiddlewares.retry import RetryMiddleware
 from .models import ClueModel
 
 
-class CookieRetryMiddleware(RetryMiddleware):
+class ClueRetryMiddleware(RetryMiddleware):
     def _retry(self, request, reason, spider):
         ret = super()._retry(request, reason, spider)
         if ret:
