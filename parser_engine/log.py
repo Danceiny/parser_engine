@@ -2,14 +2,16 @@
 
 from .config import logging
 
+logger = logging.getLogger('parser-engine')
+
 
 def pretty_dict_str(data):
     return '\n'.join([str(k) + ':\t' + str(v) for k, v in data.items()])
 
 
 def log(level, data, *msgs, **kwargs):
-    logging.log(level, "[parser-engine] %s %s %s", str(data), ' '.join([str(msg) for msg in msgs]),
-                pretty_dict_str(kwargs))
+    logger.log(level, "%s %s %s", str(data), ' '.join([str(msg) for msg in msgs]),
+               pretty_dict_str(kwargs))
 
 
 def info(data, *msgs, **kwargs):

@@ -1,5 +1,5 @@
 ## Parser Engine 
-为[scrapy](https://scrapy.org/)框架量身定制的 **"可配置化的响应解析器引擎"**。
+代号PE，为[scrapy](https://scrapy.org/)框架量身定制的 **"可配置化的响应解析器引擎"**。
 
 主要支持以下特性：
 - [x] 基于xpath、jsonpath等规则解析html和json格式的http请求响应体
@@ -15,11 +15,14 @@
     
 - 安装稳定版：
     >`pip install -U parser_engine`
-    
-### 示例
+
+### 速览
+>如何使用PE从零开始快速编写一个网站的爬虫，并持久化数据？可移步[快速开始](./TUTORIAL.md)。
+
 - 极简版，使用`CrawlSpider`的rules机制。
 ```python
 from parser_engine import TemplateAnnotation
+from scrapy.spiders.crawl import CrawlSpider
 @TemplateAnnotation(tpls="demo")
 class DemoSpider4(CrawlSpider):
     name = "demo4"
@@ -167,7 +170,7 @@ class YoukaSpider(ClueSpider):
         return results
 ```
 
-更多请参考：[examples](./examples)。
+完整示例请参考：[examples](./examples)。
 
 ### 原理
 - 解析器
@@ -338,8 +341,3 @@ TemplateAnnotation注解中传进来的参数，除了下面列出的，其他�
 
 
 由于`json_path`解析总是返回一个list，对于一些确定的字段，比如通过调用API`http://172.31.1.4:30815/api/dict/area/0?childrenDepth=1`，想拿到该地区的name字段，则可以设置`value_type`为`singleton`，则PE会做一次转换。
-
-具体使用可以参考：
-- [demo_spider](./demo/demo/spiders/demo_spider.py)。
-- [gaode_spider](./demo/demo/spiders/gaode_spider.py)。
-

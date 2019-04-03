@@ -149,7 +149,7 @@ class PESpider(RedisCrawlSpider):
         :param tpl_index_or_id:
         :return:
         """
-        pass
+        return tuple()
 
     @property
     def project(self):

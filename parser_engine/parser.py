@@ -37,6 +37,9 @@ class PEParser(object):
         :param response: instance of scrapy.http.Response
         :return: instance of scrapy.Item's subclass
         """
+        if not response.body:
+            warning("response.body is none")
+            return tuple()
         if utils.is_json_response(response):
             items = self.parse_text(response)
         else:
@@ -76,11 +79,12 @@ class PEParser(object):
             parent_xpath = parent.get('xpath')
             if parent_xpath:
                 root = root.xpath(parent_xpath)
-            parent_css = parent.get('css')
-            if not parent_css:
-                error('parse html response failed, parent node no xpath/css')
-                return tuple()
-            root = root.css(parent_css)
+            else:
+                parent_css = parent.get('css')
+                if not parent_css:
+                    error('parse html response failed, parent node no xpath/css')
+                    return tuple()
+                root = root.css(parent_css)
         if utils.is_sequence(root):
             return self._parse_html_node_list(root)
         else:
@@ -125,7 +129,11 @@ class PEParser(object):
             if parent_json_key:
                 data = data[parent_json_key]
             else:
-                data = data[parent.get('json_path')]
+                json_path = parent.get('json_path')
+                if not json_path:
+                    error('parse json response failed, parent node no json_key/json_path')
+                    return tuple()
+                data = [match.value for match in jsonpath.parse(json_path).find(data)]
         if utils.is_sequence(data):
             return self._parse_text_node_list(data)
         else:
