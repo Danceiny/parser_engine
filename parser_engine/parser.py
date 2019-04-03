@@ -129,7 +129,11 @@ class PEParser(object):
             if parent_json_key:
                 data = data[parent_json_key]
             else:
-                data = data[parent.get('json_path')]
+                json_path = parent.get('json_path')
+                if not json_path:
+                    error('parse json response failed, parent node no json_key/json_path')
+                    return tuple()
+                data = [match.value for match in jsonpath.parse(json_path).find(data)]
         if utils.is_sequence(data):
             return self._parse_text_node_list(data)
         else:
