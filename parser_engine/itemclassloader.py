@@ -33,8 +33,8 @@ class ItemClassLoader(object):
     并且，显然 ItemClassLoader 与 ItemLoader 很不一样
     """
 
-    def __init__(self, lazy_load=False):
-        self.settings = load_scrapy_settings()
+    def __init__(self, lazy_load=False, settings=None):
+        self.settings = settings if settings else load_scrapy_settings()
         self.__init(self.settings)
         if not lazy_load:
             self._load_all_items()
@@ -75,6 +75,8 @@ class ItemClassLoader(object):
         return list(self._items.keys())
 
     def get(self, name):
+        if not name:
+            return
         if not self._loaded:
             self._load_all_items()
         return self._items.get(name)
