@@ -30,7 +30,7 @@ class PEParser(object):
             self.tpl = tpl
         elif isinstance(tpl, dict):
             self.tpl = PETemplate.from_json(tpl)
-        self._item_cls = self.item_loader.get(self.tpl.itemname)  # may be None
+        self._item_cls = self.item_loader.load(self.tpl.itemname)  # may be None
 
     def __call__(self, response, **context):
         """

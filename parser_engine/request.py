@@ -1,11 +1,14 @@
 from scrapy.http.request import Request
 import simplejson as json
 from scrapy.http.request.form import FormRequest
-from six.moves.urllib.parse import urlencode
+from six.moves.urllib.parse import urlencode, urlparse
+from .utils import is_url
 
 
 class TaskRequest(dict):
-    def __init__(self, url=None, method='GET', body=None, headers=None, cookies=None, meta=None, **kwargs):
+    def __init__(self, url, method='GET', body=None, headers=None, cookies=None, meta=None, **kwargs):
+        if not is_url(url):
+            raise NotImplementedError(url)
         if headers is None:
             headers = {}
         if not body:

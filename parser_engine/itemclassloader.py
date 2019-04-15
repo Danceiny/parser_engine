@@ -3,7 +3,7 @@
 import six
 import traceback
 import warnings
-
+import importlib
 from scrapy.utils.misc import walk_modules
 from scrapy import Item
 import inspect
@@ -37,7 +37,7 @@ class ItemClassLoader(object):
         self.settings = settings if settings else load_scrapy_settings()
         self.__init(self.settings)
         if not lazy_load:
-            self._load_all_items()
+            self._load_all_items(self.settings.get('BOT_NAME') + ".items")
 
     def __init(self, settings):
         self._found = defaultdict(list)
@@ -50,9 +50,9 @@ class ItemClassLoader(object):
             self._found[spcls.__name__].append((module.__name__, spcls.__name__))
             self._items[spcls.__name__] = spcls
 
-    def _load_all_items(self):
-        default_items_module = self.settings.get('BOT_NAME') + ".items"
-        self.item_modules.append(default_items_module)
+    def _load_all_items(self, item_modules=None):
+        if item_modules:
+            self.item_modules.append(item_modules)
         for name in self.item_modules:
             try:
                 for module in walk_modules(name):
@@ -80,3 +80,22 @@ class ItemClassLoader(object):
         if not self._loaded:
             self._load_all_items()
         return self._items.get(name)
+
+    def load(self, name):
+        """
+        support import-on-call，like:
+            cls = ItemClassloader().load('parser_engine.clue.items.ClueItem')
+        :param name: absolute import path
+        :return: `class` obj
+        """
+        try:
+            cls = self.get(name)
+            if not cls and name:
+                module, cls_name = name.rsplit('.', 1)
+                md = importlib.import_module(module)
+                cls = getattr(md, cls_name)
+                if cls and inspect.isclass(cls):
+                    self._items[name] = cls
+            return cls
+        except (ImportError, Exception) as e:
+            warnings.warn("class %s not found" % name, e)

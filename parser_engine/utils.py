@@ -4,6 +4,7 @@ import os
 import json
 from scrapy.utils import project
 from scrapy.http import HtmlResponse
+from six.moves.urllib_parse import urlparse
 
 
 class classproperty(object):
@@ -76,3 +77,11 @@ def is_json(s):
 
 def item2dict(item):
     return item.__dict__['_values']
+
+
+def is_url(url):
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
