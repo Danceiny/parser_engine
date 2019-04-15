@@ -72,3 +72,7 @@ def is_json(s):
         return True
     except ValueError:
         return False
+
+
+def item2dict(item):
+    return item.__dict__['_values']
