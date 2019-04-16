@@ -16,6 +16,9 @@
 - 安装稳定版：
     >`pip install -U parser_engine`
 
+### 更新日志
+请移步[CHANGELOG.md](CHANGELOG.md)。
+
 ### 速览
 >如何使用PE从零开始快速编写一个网站的爬虫，并持久化数据？可移步[快速开始](./TUTORIAL.md)。
 

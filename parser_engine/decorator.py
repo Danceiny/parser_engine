@@ -80,7 +80,7 @@ class Template(object):
     # should implements
     # def find_by_id(tpl_id):
     #     return dict()
-    src = None
+    tpl_src = None
 
     @classmethod
     def get_rules(cls, tpls, **kwargs):
@@ -88,8 +88,8 @@ class Template(object):
             return ()
         if not is_sequence(tpls):
             tpls = tpls,
-        if cls.src:
-            rules = [cls.get_rule(cls.src.find_by_id(tpl_id), **kwargs) for tpl_id in tpls]
+        if cls.tpl_src:
+            rules = [cls.get_rule(cls.tpl_src.find_by_id(tpl_id), **kwargs) for tpl_id in tpls]
         else:
             rules = []
             for tpl in tpls:
@@ -136,7 +136,7 @@ class Template(object):
                 def find_by_id(tpl_id):
                     return {} # do query
 
-            @TemplateAnnotation(src=DataSource(), start_url_tpl_id="tpl_id_0", channel="gaode",
+            @TemplateAnnotation(tpl_src=DataSource(), start_url_tpl_id="tpl_id_0", channel="gaode",
                                 start_urls_generator="get_start_urls")
             class SpiderA(CrawlSpider):
                 name = "spider_a"
@@ -150,7 +150,7 @@ class Template(object):
                             yield item
 
             # when you push your `parser_engine.json` on the same level of `scrapy.cfg`, which is strongly recommended,
-            # we and find the config file, and `src` not needed any more
+            # we and find the config file, and `tpl_src` not needed any more
             @TemplateAnnotation(tpls=("tpl_id_0","tpl_id_1"))
             class SpiderB(CrawlSpider):
                 name = "spider_b"
@@ -167,7 +167,7 @@ class Template(object):
         :param tpl_ids: [string] or string
         :param kw: assign k-v to `item`, except following keys
             tpls => list/tuple of string, which we view it as tpl_id, or of dict/PETemplate, which we view it as real tpl
-            src => we use src to call `src.find_by_id('id')`
+            tpl_src => we use tpl_src to call `tpl_src.find_by_id('id')`
             start_urls_generator => string, method name, we use this method to get start_urls and bind it to the `cls`
             start_url_tpl_id/start_url_tpl => string, like tpl_id, but for scrapy.spiders.CrawlSpider `start_urls` contract
             customize_link_extractor => # if you store your LinkExtractor construct params in template
@@ -176,7 +176,7 @@ class Template(object):
 
         def _deco(spcls):
             tpls = kw.pop('tpls', None)
-            cls.src = kw.pop('src', None)
+            cls.tpl_src = kw.pop('tpl_src', None)
             start_url_generator_name = kw.pop('start_urls_generator', None)
             if start_url_generator_name:
                 spcls.start_urls = spcls.__dict__[start_url_generator_name](spcls)
@@ -214,7 +214,7 @@ class Template(object):
 
             if tpls and issubclass(spcls, CrawlSpider):
                 spcls.rules = cls.get_rules(tpls, **kw)
-                if not cls.src and not customize_link_extractor:
+                if not cls.tpl_src and not customize_link_extractor:
                     # do patch
                     spcls._compile_rules = _compile_rules_patch
             else:

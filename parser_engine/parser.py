@@ -30,6 +30,7 @@ class PEParser(object):
             self.tpl = tpl
         elif isinstance(tpl, dict):
             self.tpl = PETemplate.from_json(tpl)
+        self._item_cls = self.item_loader.load(self.tpl.itemname)  # may be None
 
     def __call__(self, response, **context):
         """
@@ -57,13 +58,12 @@ class PEParser(object):
     def transfer(self, datas):
         item_cls = self.get_item_cls()
         if item_cls:
-            info(item_cls, "Item class loaded")
             return [item_cls(data) for data in datas]
         else:
             return datas
 
     def get_item_cls(self):
-        return self.item_loader.get(self.tpl.itemname)
+        return self._item_cls
 
     def parse_html(self, response):
         """
