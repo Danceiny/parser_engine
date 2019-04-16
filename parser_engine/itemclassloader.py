@@ -97,5 +97,5 @@ class ItemClassLoader(object):
                 if cls and inspect.isclass(cls):
                     self._items[name] = cls
             return cls
-        except (ImportError, Exception) as e:
-            warnings.warn("class %s not found" % name, e)
+        except (ImportError, ModuleNotFoundError, Exception):
+            warnings.warn("class %s not found" % name, RuntimeWarning)
