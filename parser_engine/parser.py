@@ -137,17 +137,7 @@ class PEParser(object):
         if utils.is_sequence(data):
             return self._parse_text_node_list(data)
         else:
-            item = {}
-            for field in self.tpl.fields:
-                value = None
-                if field.json_key:
-                    value = data.get(field.json_key)
-                elif field.json_path:
-                    value = [match.value for match in jsonpath.parse(field.json_path).find(data)]
-                break_flag = self._set_item_value(item, value, field)
-                if break_flag:
-                    return tuple()
-            return item,  # Attention: return iterable tuple
+            return self._parse_text_item(data),  # Attention: return iterable tuple
 
     def _parse_text_node_list(self, root):
         items = []
@@ -159,7 +149,9 @@ class PEParser(object):
 
     def _parse_text_item(self, node):
         item = {}
-        if self.tpl.extract_keys:
+        if self.tpl.extract_all_keys:
+            return node
+        elif self.tpl.extract_keys:
             for key in self.tpl.extract_keys:
                 item[key] = node.get(key)
         elif self.tpl.extract_keys_map:
