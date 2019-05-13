@@ -209,7 +209,11 @@ class Template(object):
                         for rule in rules:
                             if tpl_index_or_id == rule.cb_kwargs.get('tpl_id'):
                                 return rule.callback(response, **rule.cb_kwargs)
+                        raise RuntimeError("tpl_id %s not found in %s" % (tpl_index_or_id, ','.join(
+                            [rule.cb_kwargs.get('tpl_id') for rule in rules]
+                        )))
 
+                spcls.start_url_rules = rules
                 spcls._parse_start_url = _parse_start_url
 
             if tpls and issubclass(spcls, CrawlSpider):
