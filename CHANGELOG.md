@@ -6,6 +6,8 @@
 **DONE**:
 - [x] 新增`extract_all_keys`参数，为真值时可直接提取JSON响应的所有字段（可以理解为，`extract_keys=*`）
 - [x] 修复`PEParser._parse_text`bug：在没有`parent`参数且响应的json不是JSONArray状况下，支持的解析参数与API标准不一致
+- [x] 修复context参数为空时crawled_time字段缺失
+- [x] `_parse_start_url`调用时传入不存在的`tpl_index_or_id`时抛出异常，而非静默返回None
 
 ### v0.1.4
 >Date: 2019-04-16

@@ -49,10 +49,14 @@ class PEParser(object):
             return tuple()
         if not utils.is_sequence(items):
             items = (items,)
-        for k, v in context.items():
+        if not context:
             for item in items:
-                item[k] = v
                 item['crawled_time'] = int(time.time())
+        else:
+            for k, v in context.items():
+                for item in items:
+                    item[k] = v
+                    item['crawled_time'] = int(time.time())
         return self.transfer(items)
 
     def transfer(self, datas):
