@@ -1,4 +1,8 @@
 # parser_engine changelog
+### v0.1.6
+>Data: 2019-05-17
+**DONE**
+- [x] `ItemClassLoader`的settings使用普通`get`方法获取具体配置项，以支持`dict`类型的settings参数
 
 ### v0.1.5
 >Date: 2019-05-09
