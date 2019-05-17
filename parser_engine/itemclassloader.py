@@ -42,7 +42,7 @@ class ItemClassLoader(object):
     def __init(self, settings):
         self._found = defaultdict(list)
         self._items = {}
-        self.item_modules = settings.getlist('ITEM_MODULES')
+        self.item_modules = settings.get('ITEM_MODULES', [])
         self._loaded = False
 
     def _load_items(self, module):
