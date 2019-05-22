@@ -1,3 +1,4 @@
+# define scrapy spider class
 import copy
 import six
 import simplejson as json
@@ -226,7 +227,6 @@ class PESpider(RedisCrawlSpider):
 
     def log(self, message, level=logging.DEBUG, **kw):
         """
-        TODO
         :param message:
         :param level:
         :param kw:

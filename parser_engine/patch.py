@@ -1,3 +1,4 @@
+# patch some features to dependencies
 import six
 from scrapy.item import DictItem
 from scrapy.utils.misc import load_object

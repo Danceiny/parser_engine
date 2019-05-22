@@ -47,8 +47,9 @@ def init_logger():
 
 def init_config():
     global CONFIG_DATA
-    CONFIG_DATA = load_config_data()
-    init_logger()
+    if not CONFIG_DATA:
+        CONFIG_DATA = load_config_data()
+        init_logger()
 
 
 def get_config_data():

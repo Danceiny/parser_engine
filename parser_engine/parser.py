@@ -23,6 +23,9 @@ def parse_with_tpl(response, tpl, **context):
 
 
 class PEParser(object):
+    """
+    core function
+    """
 
     def __init__(self, tpl=None, **kwargs):
         self.item_loader = ItemClassLoader(**kwargs)
@@ -34,8 +37,9 @@ class PEParser(object):
 
     def __call__(self, response, **context):
         """
-        todo: 使用ItemLoader优化 https://docs.scrapy.org/en/latest/topics/loaders.html
+        todo: try to use ItemLoader, see https://docs.scrapy.org/en/latest/topics/loaders.html
         :param response: instance of scrapy.http.Response
+        :param context: k-v, will assigned to each item
         :return: instance of scrapy.Item's subclass
         """
         if not response.body:
@@ -49,14 +53,9 @@ class PEParser(object):
             return tuple()
         if not utils.is_sequence(items):
             items = (items,)
-        if not context:
-            for item in items:
-                item['crawled_time'] = int(time.time())
-        else:
-            for k, v in context.items():
-                for item in items:
-                    item[k] = v
-                    item['crawled_time'] = int(time.time())
+        for item in items:
+            item['crawled_time'] = int(time.time())
+            item.update(context)
         return self.transfer(items)
 
     def transfer(self, datas):
@@ -71,9 +70,8 @@ class PEParser(object):
 
     def parse_html(self, response):
         """
-        return
         :param response:
-        :return:
+        :return: items tuple/list
         """
         return self._parse_html(response)
 
@@ -96,20 +94,25 @@ class PEParser(object):
 
     def _parse_html_node_list(self, root):
         items = []
-        for d in root:
-            item = self._parse_html_item(d)
+        for child in root:
+            item = self._parse_html_item(child)
             if item:
                 items.append(item)
         return items
 
-    def _parse_html_item(self, root):
+    def _parse_html_item(self, node):
+        """
+        parse one html fragment to one data item
+        :param node: html node(or say element)
+        :return: one item
+        """
         item = {}
         for field in self.tpl.fields:
             selector_list = None
             if field.xpath:
-                selector_list = root.xpath(field.xpath)
+                selector_list = node.xpath(field.xpath)
             elif field.css:
-                selector_list = root.css(field.css)
+                selector_list = node.css(field.css)
             if selector_list:
                 if field.regexp:
                     value = selector_list.re(field.regexp)
@@ -145,8 +148,8 @@ class PEParser(object):
 
     def _parse_text_node_list(self, root):
         items = []
-        for d in root:
-            item = self._parse_text_item(d)
+        for child in root:
+            item = self._parse_text_item(child)
             if item:
                 items.append(item)
         return items
@@ -208,8 +211,8 @@ class PEParser(object):
                     int
                     long
                     float
-                    striped_string:  maybe very useful in html to remove '\r', '\n', '\t'
-        :return:
+                    stripped_string:  maybe very useful in html to remove '\r', '\n', '\t'
+        :return: new value whose type is as expected
         """
         if not t:
             return o

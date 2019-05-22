@@ -1,10 +1,10 @@
+# define clue models
+from . import *
 import time
 
 import simplejson as json
 from peewee import Model, PrimaryKeyField, CharField, IntegerField
-
 from parser_engine.config import mysqldb
-
 from .constants import ClueStatus
 
 

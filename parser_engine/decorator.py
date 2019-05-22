@@ -1,3 +1,4 @@
+# decorator for clients
 import copy
 import six
 from scrapy.spiders import Rule, CrawlSpider
@@ -77,7 +78,11 @@ def find_by_id(tpl_id):
 
 @Singleton
 class Template(object):
-    # should implements
+    """
+    use singleton to control initialization
+    """
+
+    # tpl_src should implements
     # def find_by_id(tpl_id):
     #     return dict()
     tpl_src = None

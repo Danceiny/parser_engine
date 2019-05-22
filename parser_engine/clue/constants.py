@@ -1,3 +1,5 @@
+# define constants
+from . import *
 from enum import IntEnum
 
 

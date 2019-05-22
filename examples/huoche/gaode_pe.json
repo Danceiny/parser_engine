@@ -1,0 +1,19 @@
+{
+  "templates": [
+    {
+      "name": "leads",
+      "itemname": "LeadsItem",
+      "parent": {
+        "json_key": "pois"
+      },
+      "extract_keys_map": {
+        "id": "channel_id",
+        "tel": "contact",
+        "name": "name",
+        "cityname": "city",
+        "type": "category",
+        "address": "address"
+      }
+    }
+  ]
+}

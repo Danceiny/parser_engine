@@ -1,7 +1,6 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
+# Singleton and ThreadingSafeSingleton
 
-# https://github.com/reyoung/singleton
+# ref: https://github.com/reyoung/singleton
 __author__ = ['reyoung', 'danceiny']
 
 from threading import Lock

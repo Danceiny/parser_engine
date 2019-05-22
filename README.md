@@ -22,6 +22,8 @@
 ### 速览
 >如何使用PE从零开始快速编写一个网站的爬虫，并持久化数据？可移步[快速开始](./TUTORIAL.md)。
 
+>注：下面的示例代码使用了parser_engine.clue包，该包已经被标记为`Deprecated`
+
 - 极简版，使用`CrawlSpider`的rules机制。
 ```python
 from parser_engine import TemplateAnnotation
@@ -177,7 +179,7 @@ class YoukaSpider(ClueSpider):
 
 ### 原理
 - 解析器
-    >PE向调用方提供一套简单、易懂的参数，实际会将其`编译`成较为复杂的xpath表达式，再借助scrapy封装的解析器将所需内容提取出来。
+    >PE提供一套简单、易懂的API参数，实际会将其`编译`成较为复杂的xpath表达式，再借助scrapy封装的解析器将所需内容提取出来。
 
 - 返回值
     >通过配置`itemname`参数，PE将`反射`得到所需的`Item`类，按照配置的映射关系，从提取出的值创建一个`Item`实例（或者多个），并返回一个可迭代的`Item`实例列表。
@@ -222,6 +224,7 @@ class YoukaSpider(ClueSpider):
         - HOST 默认127.0.0.1
 
 下面的字段在MYSQL配置缺失时生效：
+
 - MYSQL_USER
 - MYSQL_PASSWORD
 - MYSQL_PORT

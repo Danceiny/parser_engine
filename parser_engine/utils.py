@@ -1,3 +1,5 @@
+# utilities
+
 import collections
 import six
 import os
@@ -5,15 +7,6 @@ import json
 from scrapy.utils import project
 from scrapy.http import HtmlResponse
 from six.moves.urllib_parse import urlparse
-
-
-class classproperty(object):
-
-    def __init__(self, fget):
-        self.fget = fget
-
-    def __get__(self, owner_self, owner_cls):
-        return self.fget(owner_cls)
 
 
 def is_sequence(seq):
@@ -76,10 +69,20 @@ def is_json(s):
 
 
 def item2dict(item):
+    """
+    convert scrapy item to normal dict
+    :param item: scrapy.Item instance
+    :return: dict
+    """
     return item.__dict__['_values']
 
 
 def is_url(url):
+    """
+    check a string if it's correct URL
+    :param url: string
+    :return: true/false
+    """
     try:
         result = urlparse(url)
         return all([result.scheme, result.netloc])

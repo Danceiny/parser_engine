@@ -1,4 +1,12 @@
 # parser_engine changelog
+### v0.1.7
+>Data: 2019-05-22
+**DONE**
+- [x] 移除无用代码
+- [x] 增加注释
+- [x] 全局配置变量控制只加载一次
+- [x] clue模块打印warning日志提醒deprecated
+
 ### v0.1.6
 >Data: 2019-05-17
 **DONE**

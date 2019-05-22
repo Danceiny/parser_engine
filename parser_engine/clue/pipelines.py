@@ -1,3 +1,5 @@
+# scrapy pipelines
+from . import *
 from .items import ClueItem
 from .models import ClueModel
 

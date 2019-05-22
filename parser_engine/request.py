@@ -1,3 +1,4 @@
+# define different type of request class
 from scrapy.http.request import Request
 import simplejson as json
 from scrapy.http.request.form import FormRequest
@@ -6,6 +7,12 @@ from .utils import is_url
 
 
 class TaskRequest(dict):
+    """
+    TaskRequest instance, is the real object which is pushed to redis queue as outer scheduler scheduled
+    it defines a http/http requests, even other protocols those must conform to URL protocol,
+    and other meta information, as dict value, usually used for tracking or other stuffs
+    """
+
     def __init__(self, url, method='GET', body=None, headers=None, cookies=None, meta=None, **kwargs):
         if not is_url(url):
             raise NotImplementedError(url)

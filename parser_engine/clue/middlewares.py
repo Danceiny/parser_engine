@@ -1,8 +1,14 @@
+# scrapy middlewares
+from . import *
 from scrapy.downloadermiddlewares.retry import RetryMiddleware
 from .models import ClueModel
 
 
 class ClueRetryMiddleware(RetryMiddleware):
+    """
+    download retry, mark clue as failed if max retry times reached
+    """
+
     def _retry(self, request, reason, spider):
         ret = super()._retry(request, reason, spider)
         if ret:

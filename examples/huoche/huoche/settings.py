@@ -22,7 +22,7 @@ SCHEDULER_PERSIS = True
 SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.SpiderPriorityQueue'
 REDIS_START_URLS_KEY = BOT_NAME + ":" + '%(name)s:start_urls'
 
-PARSER_ENGINE_CONFIG_FILE = "templates/gaode_pe.json"
+PARSER_ENGINE_CONFIG_FILE = "gaode_pe.json"
 ROBOTSTXT_OBEY = False
 
 DOWNLOADER_MIDDLEWARES = {

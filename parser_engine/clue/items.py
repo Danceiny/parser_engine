@@ -1,5 +1,5 @@
 # define ClueItem and ClueModel
-
+from . import *
 from scrapy.item import Item, Field
 
 
