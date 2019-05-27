@@ -1,4 +1,9 @@
 # parser_engine changelog
+### v0.1.8
+>Data: 2019-05-27
+**DONE**
+- [x] `PESpider`所有`route`相关方法，增加`append_mode`参数（bool，默任False），为真时将`TaskRequest`插入到队列尾部，为假时插入到队列头部。
+
 ### v0.1.7
 >Data: 2019-05-22
 **DONE**

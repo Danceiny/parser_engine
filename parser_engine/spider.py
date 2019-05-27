@@ -193,37 +193,43 @@ class PESpider(RedisCrawlSpider):
     def get_project_name(self):
         return self.settings.get("BOT_NAME")
 
-    @property
-    def router(self):
+    def router(self, append_mode=False):
         use_set = self.settings.getbool('REDIS_START_URLS_AS_SET', START_URLS_AS_SET)
-        return self.server.sadd if use_set else self.server.lpush
+        if use_set:
+            return self.server.sadd
+        if append_mode:
+            return self.server.rpush
+        return self.server.lpush
 
-    def route(self, queue, task_req):
+    def route(self, queue, task_req, append_mode=False):
         """
         push TaskRequest instance to redis queue
+        :param append_mode:
         :param queue:
         :param task_req:
         :return:
         """
-        return self.router(queue, json.dumps(task_req))
+        return self.router(append_mode)(queue, json.dumps(task_req))
 
-    def add_task(self, task):
+    def add_task(self, task, append_mode=False):
         """
         push TaskRequest instance to redis queue of this spider
+        :param append_mode:
         :param task:
         :return:
         """
-        self.route(self.redis_key, task)
+        self.route(self.redis_key, task, append_mode)
 
-    def reroute_request(self, request):
+    def reroute_request(self, request, append_mode=False):
         """
         push a scrapy.http.Request instance, which maybe failed, back to queue
+        :param append_mode:
         :param request:
         :return:
         """
         self.route(
             "%s:%s:start_urls" % (request.meta.get('project', self.project), request.meta.get('spider', self.name)),
-            self.request_to_task(request))
+            self.request_to_task(request), append_mode)
 
     def log(self, message, level=logging.DEBUG, **kw):
         """
